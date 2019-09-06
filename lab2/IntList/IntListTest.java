@@ -33,7 +33,12 @@ public class IntListTest {
      *  can be instantiated, for example, with
      *  IntList empty = IntList.list().
      */
-    
+    @Test
+    public void testSquareListRecursive() {
+        IntList L = IntList.list(1, 2, 3);
+        assertNotEquals(IntList.squareListRecursive(L), L);
+    }
+
     //TODO:  Create testSquareListRecursive()
 
     /* Run the unit tests in this file. */
