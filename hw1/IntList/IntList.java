@@ -173,7 +173,21 @@ public class IntList {
      *  that start and len are always >= 0.
      */
     static IntList sublist(IntList L, int start, int len) {
-        
+        IntList copy = L;
+        for (; start > 0; start -= 1) {
+            copy = copy.tail;
+        }
+        IntList result, last;
+        result = last = null;
+        for (; len > 0; len -= 1, copy = copy.tail) {
+            if (last == null) {
+                result = last = new IntList(copy.head, null);
+            }
+            else {
+                last = last.tail = new IntList(copy.head, null);
+            }
+        }
+        return result;
     }
 
     /* 2d. */

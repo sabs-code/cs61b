@@ -57,6 +57,8 @@ public class IntListTest {
     @Test
     public void testSublist() {
         assertEquals(IntList.list(4,5), IntList.sublist(IntList.list(1, 2, 3, 4, 5, 6), 3, 2));
+        assertEquals(IntList.list(1, 2, 3), IntList.sublist(IntList.list(1, 2, 3, 4), 0, 3));
+        assertEquals(IntList.list(), IntList.sublist(IntList.list(1, 2, 3), 2, 0));
 
     }
 
@@ -69,6 +71,8 @@ public class IntListTest {
     @Test
     public void testDsublist() {
         assertEquals(IntList.list(4,5), IntList.dsublist(IntList.list(1, 2, 3, 4, 5, 6), 3, 2));
+        assertEquals(IntList.list(1, 2, 3), IntList.sublist(IntList.list(1, 2, 3, 4), 0, 3));
+        assertEquals(IntList.list(), IntList.sublist(IntList.list(1, 2, 3), 2, 0));
     }
 
 
