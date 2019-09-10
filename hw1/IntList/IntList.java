@@ -138,8 +138,11 @@ public class IntList {
      *  elements of B.  May modify items of A. Don't use 'new'. */
 
     static IntList dcatenate(IntList A, IntList B) {
-        return null; // REPLACE WITH YOUR CODE */
-
+        if (A == null) {return B;}
+        else {
+            A.tail = dcatenate(A.tail, B);
+            return A;
+        }
     }
 
     /* 2b. */
@@ -150,7 +153,11 @@ public class IntList {
       * This method should NOT modify the items in L. */
 
     static IntList subTail(IntList L, int start) {
-        return null; // REPLACE WITH YOUR CODE
+        IntList result = L;
+        for (; start > 0; start -= 1) {
+            result = result.tail;
+        }
+        return result;
     }
 
 
@@ -166,8 +173,7 @@ public class IntList {
      *  that start and len are always >= 0.
      */
     static IntList sublist(IntList L, int start, int len) {
-        return null;  // REPLACE WITH YOUR SOLUTION
-
+        
     }
 
     /* 2d. */
@@ -178,8 +184,14 @@ public class IntList {
      *  As with sublist, you can assume the items requested
      *  exist, and that START and LEN are >= 0. */
     static IntList dsublist(IntList L, int start, int len) {
-        return null; // REPLACE WITH YOUR SOLUTION
-
+        if (len == 0) {return null;}
+        else if (start > 0) {
+            return dsublist(L.tail, start - 1,len);
+        }
+        else {
+            L.tail = dsublist(L.tail, 0, len-1);
+            return L;
+        }
     }
 
 
