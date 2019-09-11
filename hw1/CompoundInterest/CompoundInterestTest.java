@@ -42,9 +42,9 @@ public class CompoundInterestTest {
     @Test
     public void testTotalSavingsReal() {
         double tolerance = 0.01;
-        assertEquals(16027.445, CompoundInterest.totalSavingsReal(5000, 2021, 10, 3), tolerance);
-        assertEquals(2635.129, CompoundInterest.totalSavingsReal(1000, 2021, -10, 3), tolerance);
-        assertEquals(17083.445, CompoundInterest.totalSavingsReal(5000, 2021, 10, -3), tolerance);
+        assertEquals(15571.895, CompoundInterest.totalSavingsReal(5000, 2021, 10, 3), tolerance);
+        assertEquals(2549.839, CompoundInterest.totalSavingsReal(1000, 2021, -10, 3), tolerance);
+        assertEquals(17557.895, CompoundInterest.totalSavingsReal(5000, 2021, 10, -3), tolerance);
     }
 
 
