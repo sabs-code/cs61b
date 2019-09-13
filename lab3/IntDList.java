@@ -1,3 +1,5 @@
+import java.awt.dnd.DnDConstants;
+
 /**
  * Scheme-like pairs that can be used to form a list of integers.
  * @author P. N. Hilfinger or unknown TA
@@ -46,7 +48,11 @@ public class IntDList {
      * @return The number of elements in this list.
      */
     public int size() {
-        return 0;   // Your code here
+        int size = 0;
+        for (DNode x = _front; x != null; x = x._next) {
+            size += 1;
+        }
+        return size;
     }
 
     /**
@@ -60,21 +66,49 @@ public class IntDList {
      * @return The integer value at index i
      */
     public int get(int i) {
-        return 0;   // Your code here
+        int size = size();
+        DNode result = _front;
+        if (i >= 0) {
+            for (int count = 0; count < i; count += 1) {
+                result = result._next;
+            }
+        }
+        else {
+            for (int count = -size; count < i; count += 1) {
+                result = result._next;
+            }
+        }
+        return result._val;
     }
 
     /**
      * @param d value to be inserted in the front
      */
     public void insertFront(int d) {
-        // Your code here
+        if (_front == null && _back == null) {
+            DNode first = new DNode(null, d, null);
+            _front = first;
+            _back = first;
+        }
+        else {
+            _front = new DNode(null, d, _front);
+            _front._next._prev = _front;
+        }
     }
 
     /**
      * @param d value to be inserted in the back
      */
     public void insertBack(int d) {
-        // Your code here
+        if (_front == null && _back == null) {
+            DNode first = new DNode(null, d, null);
+            _front = first;
+            _back = first;
+        }
+        else {
+            _back = new DNode(_back, d, null);
+            _back._prev._next = _back;
+        }
     }
 
     /**
@@ -83,7 +117,17 @@ public class IntDList {
      * @return the item that was deleted
      */
     public int deleteBack() {
-        return 0;   // Your code here
+        if (_back == _front) {
+            int result = _back._val;
+            _back = _front = null;
+            return result;
+        }
+        else {
+            int result = _back._val;
+            _back._prev._next = null;
+            _back = _back._prev;
+            return result;
+        }
 
     }
 
@@ -96,7 +140,15 @@ public class IntDList {
      * System.out.println(a); //prints ab
      */
     public String toString() {
-        return null;   // Your code here
+        if (_front == null && _back == null) { return "[]"; }
+        else {
+            String result = "[";
+            for (DNode x = _front; x != _back; x = x._next) {
+                result += x._val + ", ";
+            }
+            result += _back._val + "]";
+            return result;
+        }
     }
 
     /**
