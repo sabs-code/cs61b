@@ -5,8 +5,10 @@ package lists;
 
 /** HW #2, Problem #1. */
 
+import image.In;
+
 /** List problem.
- *  @author
+ *  @author Sabrina Xia
  */
 class Lists {
     /** Return the list of lists formed by breaking up L into "natural runs":
@@ -18,6 +20,17 @@ class Lists {
      *  original list pointed to by L. */
     static IntListList naturalRuns(IntList L) {
         /* *Replace this body with the solution. */
-        return null;
+        if (L==null) {return null;}
+        else {
+            IntList input, pointer;
+            input = pointer = L;
+            int last = 0;
+            for (; L != null && L.head > last; L = L.tail) {
+                pointer = L;
+                last = L.head;
+            }
+            pointer.tail = null;
+            return new IntListList(input, naturalRuns(L));
+        }
     }
 }
