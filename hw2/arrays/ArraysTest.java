@@ -1,6 +1,7 @@
 package arrays;
 
 import com.sun.xml.internal.xsom.impl.scd.Iterators;
+import org.checkerframework.checker.units.qual.A;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -34,6 +35,19 @@ public class ArraysTest {
         assertArrayEquals(result1, Arrays.remove(input1, 2, 2));
         assertArrayEquals(result2, Arrays.remove(input1, 6, 6));
     }
+
+    @Test
+    public void testNaturalRuns() {
+        int[] input = {1, 3, 7, 5, 4, 6, 9, 10};
+        int[] result1 = {1, 3, 7};
+        int[] result2 = {5};
+        int[] result3 = {4, 6, 9, 10};
+        assertArrayEquals(result1, Arrays.naturalRuns(input)[0]);
+        assertArrayEquals(result2, Arrays.naturalRuns(input)[1]);
+        assertArrayEquals(result3, Arrays.naturalRuns(input)[2]);
+        assertEquals(3, Arrays.naturalRuns(input).length);
+    }
+
     public static void main(String[] args) {
         System.exit(ucb.junit.textui.runClasses(ArraysTest.class));
     }

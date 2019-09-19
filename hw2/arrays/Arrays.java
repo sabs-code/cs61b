@@ -36,8 +36,34 @@ class Arrays {
      *  For example, if A is {1, 3, 7, 5, 4, 6, 9, 10}, then
      *  returns the three-element array
      *  {{1, 3, 7}, {5}, {4, 6, 9, 10}}. */
+
     static int[][] naturalRuns(int[] A) {
-        /* *Replace this body with the solution. */
-        return null;
+        int count = 0;
+        int last = A[0];
+        for (int i = 0; i < A.length; i ++) {
+            if (A[i] <= last) {
+                count += 1;
+            }
+            last = A[i];
+        }
+        int[][] result = new int[count][];
+        last = A[0];
+        for (int i = 0; i < count; i++) {
+            int j = 0;
+            for (; j < A.length;) {
+                j += 1;
+                if (j == A.length) {break;}
+                else if (A[j] <= last) {
+                    last = A[j];
+                    break;
+                }
+                else {
+                    last = A[j];
+                }
+            }
+            result[i] = Utils.subarray(A, 0, j);
+            A = Utils.subarray(A, j, A.length-j);
+        }
+        return result;
     }
 }
