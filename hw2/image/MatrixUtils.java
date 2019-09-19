@@ -3,7 +3,7 @@ package image;
 /** Provides a variety of utilities for operating on matrices.
  *  All methods assume that the double[][] arrays provided are rectangular.
  *
- *  @author Josh Hug and YOU
+ *  @author Josh Hug and Sabrina Xia
  */
 
 public class MatrixUtils {
@@ -18,6 +18,7 @@ public class MatrixUtils {
      */
 
     enum Orientation { VERTICAL, HORIZONTAL };
+
 
     /** Non-destructively accumulates an energy matrix in the vertical
      *  direction.
@@ -54,8 +55,27 @@ public class MatrixUtils {
      *
      */
 
+    public static double get(double[][] e, int r, int c) {
+        int maxR = e.length - 1;
+        int maxC = e[0].length -1;
+        if (r < 0 || r > maxR || c < 0 || c > maxC) {
+             return Double.POSITIVE_INFINITY;
+        }
+        else { return e[r][c];}
+    }
+
+
     public static double[][] accumulateVertical(double[][] m) {
-        return null; //your code here
+        double[][] result = copy(m);
+        int height = result.length;
+        int width = result[0].length;
+        for (int i = 1; i < height; i ++) {
+            for (int j = 0; j < width; j ++) {
+                double added = Math.min(Math.min(get(result, i-1, j-1), get(result, i-1, j)), get(result, i-1, j+1));
+                result[i][j] += added;
+            }
+        }
+        return result;
     }
 
     /** Non-destructively accumulates a matrix M along the specified
@@ -71,7 +91,7 @@ public class MatrixUtils {
      *  accumulateVertical(mT) returns the correct result.
      *
      *  accumulate should be very short (only a few lines). Most of the
-     *  work should be done in creaing the helper function (and even
+     *  work should be done in creating the helper function (and even
      *  that function should be pretty short and straightforward).
      *
      *  The important lesson here is that you should never have big
@@ -81,8 +101,26 @@ public class MatrixUtils {
      *
      */
 
+    static double[][] transpose(double[][] m) {
+        int height = m.length;
+        int width = m[0].length;
+        double[][] result = new double[width][height];
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j ++) {
+                result[j][i] = m[i][j];
+            }
+        }
+        return result;
+    }
+
     public static double[][] accumulate(double[][] m, Orientation orientation) {
-        return null; //your code here
+        if (orientation == Orientation.VERTICAL) {
+            return accumulateVertical(m);
+        }
+        else {
+            double[][] result = transpose(accumulateVertical(transpose(m)));
+            return result;
+        }
     }
 
     /** Finds the vertical seam VERTSEAM of the given matrix M.
