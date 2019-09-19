@@ -1,6 +1,5 @@
 package image;
 
-import afu.org.checkerframework.checker.oigj.qual.O;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

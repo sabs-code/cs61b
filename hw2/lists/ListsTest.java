@@ -1,6 +1,5 @@
 package lists;
 
-import antlr.collections.List;
 import image.In;
 import org.junit.Test;
 import static org.junit.Assert.*;
