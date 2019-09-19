@@ -24,10 +24,13 @@ class Arrays {
     /** Returns the array formed by removing LEN items from A,
      *  beginning with item #START. */
     static int[] remove(int[] A, int start, int len) {
-        /* *Replace this body with the solution. */
         int[] result = new int[A.length-len];
-        arraycopy(A, start, result, 0, result.length);
-        return result;
+        arraycopy(A, 0, result, 0, start);
+        if (start+len == A.length) {return result;}
+        else {
+            arraycopy(A, start+len, result, start, A.length-start-len);
+            return result;
+        }
     }
 
     /* E. */
@@ -38,6 +41,7 @@ class Arrays {
      *  {{1, 3, 7}, {5}, {4, 6, 9, 10}}. */
 
     static int[][] naturalRuns(int[] A) {
+        if (A.length == 0) {return null;}
         int count = 0;
         int last = A[0];
         for (int i = 0; i < A.length; i ++) {

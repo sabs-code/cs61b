@@ -29,11 +29,14 @@ public class ArraysTest {
 
     @Test
     public void testRemove() {
-        int[] result1 = {3, 4, 5, 6};
+        int[] result1 = {1, 2, 5, 6};
         int[] input1 = {1, 2, 3, 4, 5, 6};
-        int[] result2 = {};
+        int[] input2 = {1, 2, 3, 4, 5};
+        int[] result3 = {1, 2,5};
+        int[] result4 = {1};
         assertArrayEquals(result1, Arrays.remove(input1, 2, 2));
-        assertArrayEquals(result2, Arrays.remove(input1, 6, 6));
+        assertArrayEquals(result3, Arrays.remove(input2, 2, 2));
+        assertArrayEquals(result4, Arrays.remove(input2, 1, 4));
     }
 
     @Test

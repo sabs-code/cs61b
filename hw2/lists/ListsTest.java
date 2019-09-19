@@ -1,5 +1,6 @@
 package lists;
 
+import antlr.collections.List;
 import image.In;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -24,8 +25,20 @@ public class ListsTest {
         int[][] arrResult2= {{1}, {1}, {1}, {1}, {1}};
         IntListList result2 = IntListList.list(arrResult2);
 
+        int[] arrInput3 = {0, 1, 2, 3, 4};
+        IntList input3 = IntList.list(arrInput3);
+        int[][] arrResult3 = {{0, 1, 2, 3, 4}};
+        IntListList result3 = IntListList.list(arrResult3);
+
+        int[] arrInput4 = {7, 3, 2, 3, 6, 7, 8, 2, 3, 6, 8, 4, 1, 2, 4, 3, 0, 1, 2};
+        IntList input4 = IntList.list(arrInput4);
+        int[][] arrResult4 = {{7}, {3}, {2, 3, 6, 7, 8}, {2, 3, 6, 8}, {4}, {1, 2, 4}, {3}, {0, 1, 2}};
+        IntListList result4 = IntListList.list(arrResult4);
+
         assertEquals(result, Lists.naturalRuns(input));
         assertEquals(result2, Lists.naturalRuns(input2));
+        assertEquals(result3, Lists.naturalRuns(input3));
+        assertEquals(result4, Lists.naturalRuns(input4));
     }
     // It might initially seem daunting to try to set up
     // IntListList expected.

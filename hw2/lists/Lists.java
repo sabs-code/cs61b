@@ -19,12 +19,11 @@ class Lists {
      *  Destructive: creates no new IntList items, and may modify the
      *  original list pointed to by L. */
     static IntListList naturalRuns(IntList L) {
-        /* *Replace this body with the solution. */
         if (L==null) {return null;}
         else {
             IntList input, pointer;
             input = pointer = L;
-            int last = 0;
+            double last = Double.NEGATIVE_INFINITY;
             for (; L != null && L.head > last; L = L.tail) {
                 pointer = L;
                 last = L.head;
