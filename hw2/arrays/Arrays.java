@@ -41,7 +41,10 @@ class Arrays {
      *  {{1, 3, 7}, {5}, {4, 6, 9, 10}}. */
 
     static int[][] naturalRuns(int[] A) {
-        if (A.length == 0) {return null;}
+        if (A.length == 0) {
+            int[][] result = {};
+            return result;
+        }
         int count = 0;
         int last = A[0];
         for (int i = 0; i < A.length; i ++) {
