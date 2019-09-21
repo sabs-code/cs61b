@@ -33,10 +33,10 @@ TESTS := *.in
 
 # First, and therefore default, target.
 default:
-	$(MAKE) -C .. 
-	$(MAKE) check
+	"$(MAKE)" -C .. 
+	"$(MAKE)" check
 
-# A non-standard classpath that works Linux, Mac, and Windows.
+# A non-standard classpath that works on Linux, Mac, and Windows.
 CPATH = "..:$(CLASSPATH):;..;$(CLASSPATH)"
 
 # 'make check' will run the tests in the testing directory.
@@ -57,7 +57,7 @@ clean:
 
 # Regenerate .std files.
 outputs: 
-	$(MAKE) -C ..
+	"$(MAKE)" -C ..
 	@for inp in $(TESTS); do \
 	    out=$$(basename $$inp .in).std; \
 	    echo -n $$inp "=>" $$out; \

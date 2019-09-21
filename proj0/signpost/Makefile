@@ -57,8 +57,8 @@ Main.class: $(SRCS)
 # Run Tests.
 check: 
 	code=0; \
-	$(MAKE) unit || code=1; \
-	$(MAKE) integration || code = 1; \
+	"$(MAKE)" unit || code=1; \
+	"$(MAKE)" integration || code=1; \
 	exit $$code
 
 # Run unit tests in this directory
@@ -66,7 +66,7 @@ unit: compile
 	cd ..; java -ea signpost.UnitTests
 
 integration: compile
-	$(MAKE) -C ../testing PYTHON=$(PYTHON) check
+	"$(MAKE)" -C ../testing PYTHON=$(PYTHON) check
 
 unit-jar: unit-tests.jar
 

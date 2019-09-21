@@ -26,26 +26,26 @@ STYLEPROG = style61b
 .PHONY: default check clean style unit integration
 
 default:
-	$(MAKE) -C $(PACKAGE) default
+	"$(MAKE)" -C $(PACKAGE) default
 
 check: default
 	code=0; \
-	$(MAKE) -C $(PACKAGE) PYTHON=$(PYTHON) unit || code=1; \
-	$(MAKE) -C testing PYTHON=$(PYTHON) check || code=1; \
+	"$(MAKE)" -C $(PACKAGE) PYTHON=$(PYTHON) unit || code=1; \
+	"$(MAKE)" -C testing PYTHON=$(PYTHON) check || code=1; \
 	exit $$code
 
 unit: default
-	$(MAKE) -C $(PACKAGE) PYTHON=$(PYTHON) unit
+	"$(MAKE)" -C $(PACKAGE) PYTHON=$(PYTHON) unit
 
 integration: default
-	$(MAKE) -C testing PYTHON=$(PYTHON) check
+	"$(MAKE)" -C testing PYTHON=$(PYTHON) check
 
 style:
-	$(MAKE) -C $(PACKAGE) STYLEPROG=$(STYLEPROG) style
+	"$(MAKE)" -C $(PACKAGE) STYLEPROG=$(STYLEPROG) style
 
 # 'make clean' will clean up stuff you can reconstruct.
 clean:
 	$(RM) *~
 	$(RM) bin/$(PACKAGE).jar
-	$(MAKE) -C $(PACKAGE) clean
-	$(MAKE) -C testing clean
+	"$(MAKE)" -C $(PACKAGE) clean
+	"$(MAKE)" -C testing clean
