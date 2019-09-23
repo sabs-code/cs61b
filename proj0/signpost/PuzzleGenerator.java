@@ -23,8 +23,8 @@ class PuzzleGenerator implements PuzzleSource {
         Model model =
             new Model(makePuzzleSolution(width, height, allowFreeEnds));
         // FIXME: Remove the "//" on the following two lines.
-        // makeSolutionUnique(model);
-        // model.autoconnect();
+        makeSolutionUnique(model);
+        model.autoconnect();
         return model;
     }
 
@@ -54,15 +54,15 @@ class PuzzleGenerator implements PuzzleSource {
         _vals[x1][y1] = last;
         // FIXME: Remove the following return statement and uncomment the
         //        next three lines.
-        return new int[][] {
-            { 14, 9, 8, 1 },
-            { 15, 10, 7, 2 },
-            { 13, 11, 6, 3 },
-            { 16, 12, 5, 4 }
-        };
-        //boolean ok = findSolutionPathFrom(x0, y0);
-        //assert ok;
-        //return _vals;
+//        return new int[][] {
+//            { 14, 9, 8, 1 },
+//            { 15, 10, 7, 2 },
+//            { 13, 11, 6, 3 },
+//            { 16, 12, 5, 4 }
+//        };
+        boolean ok = findSolutionPathFrom(x0, y0);
+        assert ok;
+        return _vals;
     }
 
     /** Try to find a random path of queen moves through VALS from (X0, Y0)
@@ -122,7 +122,7 @@ class PuzzleGenerator implements PuzzleSource {
      *  a single possible successor).  Return 2 if changes made, 1 if no
      *  changes made, 0 if a non-final square with no possible connections
      *  encountered. */
-    private int makeForwardConnections(Model model) {
+    private int makeForwardConnections(signpost.Model model) {
         int w = model.width(), h = model.height();
         int result;
         result = 1;
@@ -138,6 +138,25 @@ class PuzzleGenerator implements PuzzleSource {
                 //        squares.  If sq is numbered and can be connected to
                 //        a numbered square, then set nFound to 1 and found
                 //        to that numbered square.
+                PlaceList allPlaces = model.allSuccessors(sq.x, sq.y, sq.direction());
+                if (sq.sequenceNum() != 0) {
+                    for (signpost.Place place : allPlaces) {
+                        Sq desSq = model.get(place);
+                        if (desSq.sequenceNum() != 0 && sq.connectable(desSq)) {
+                            nFound = 1;
+                            found = desSq;
+                        }
+                    }
+                }
+                else if (sq.sequenceNum() == 0) {
+                    for (signpost.Place place :allPlaces) {
+                        Sq desSq = model.get(place);
+                        if (sq.connectable(desSq)) {
+                            nFound += 1;
+                            found = desSq;
+                        }
+                    }
+                }
                 if (nFound == 0) {
                     return 0;
                 } else if (nFound == 1) {
@@ -153,7 +172,7 @@ class PuzzleGenerator implements PuzzleSource {
      *  a single possible predecessor).  Return 2 if changes made, 1 if no
      *  changes made, 0 if a non-final square with no possible connections
      *  encountered. */
-    private int makeBackwardConnections(Model model) {
+    private int makeBackwardConnections(signpost.Model model) {
         int w = model.width(), h = model.height();
         int result;
         result = 1;
@@ -169,6 +188,22 @@ class PuzzleGenerator implements PuzzleSource {
                 //        numbered and one of these connectable predecessors
                 //        is numbered, then set nFound to 1 and found
                 //        to that numbered predecessor.
+                PlaceList allPlaces = sq.predecessors();
+                for (signpost.Place place : allPlaces) {
+                    Sq desSq = model.get(place);
+                    if (sq.sequenceNum() != 0) {
+                        if (desSq.sequenceNum() != 0 && desSq.connectable(sq)) {
+                            nFound += 1;
+                            found = desSq;
+                        }
+                    }
+                    else {
+                        if (desSq.connectable(sq)) {
+                            nFound += 1;
+                            found = desSq;
+                        }
+                    }
+                }
                 if (nFound == 0) {
                     return 0;
                 } else if (nFound == 1) {
