@@ -1,6 +1,5 @@
 package signpost;
 
-import org.junit.Test;
 import ucb.junit.textui;
 
 /** The suite of all JUnit tests for the signpost package.
