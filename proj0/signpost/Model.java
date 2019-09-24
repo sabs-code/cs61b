@@ -257,15 +257,13 @@ class Model implements Iterable<Model.Sq> {
         int changed = 0;
         for (Sq[] col : _board) {
             for (Sq sq : col) {
-                if (sq._sequenceNum != 0) {
-                    if (sq._successor == null) {
-                        int nextNum = sq._sequenceNum + 1;
-                        for (Sq[] col1 : _board) {
-                            for (Sq sq1 : col1) {
-                                if (sq1._sequenceNum == nextNum) {
-                                    sq.connect(sq1);
-                                    changed += 1;
-                                }
+                if (sq._sequenceNum != 0 && sq.successor() == null) {
+                    int nextNum = sq._sequenceNum + 1;
+                    for (Sq[] col1 : _board) {
+                        for (Sq sq1 : col1) {
+                            if (sq1._sequenceNum == nextNum) {
+                                sq.connect(sq1);
+                                changed += 1;
                             }
                         }
                     }
@@ -287,6 +285,7 @@ class Model implements Iterable<Model.Sq> {
                 sq._sequenceNum = _solution[i][j];
             }
         }
+        autoconnect();
         _unconnected = 0;
     }
 
@@ -556,32 +555,28 @@ class Model implements Iterable<Model.Sq> {
          */
         boolean connectable(Sq s1) {
             if (dirOf(x, y, s1.x, s1.y) == _dir) {
-                return true;
-            } else if (s1._predecessor != null || _successor != null) {
-                return false;
-            } else if (s1._sequenceNum != 0 && _sequenceNum != 0) {
-                if (_sequenceNum != s1._sequenceNum - 1) {
-                    return false;
-                }
-            } else if (s1._sequenceNum == 0 && _sequenceNum == 0) {
-                if (_head == s1._head) {
-                    return false;
+                if (_successor == null && s1.predecessor() == null) {
+                    if (_sequenceNum != 0 && s1._sequenceNum != 0) {
+                        return sequenceNum() == s1.sequenceNum() - 1;
+                    } else if (sequenceNum() == 0 && s1.sequenceNum() == 0) {
+                        return head() != s1.head();
+                    }
+                    return true;
                 }
             }
-            return true;
+            return false;
         }
 
         /** Connect me to S1, if we are connectable; otherwise do nothing.
          *  Returns true iff we were connectable.  Assumes S1 is in the proper
          *  arrow direction from me. */
 
-//
+
         boolean connect(Sq s1) {
             if (!connectable(s1)) {
                 return false;
             }
             int sgroup = s1.group();
-
             _unconnected -= 1;
             _successor = s1;
             s1._predecessor = this;
@@ -593,22 +588,54 @@ class Model implements Iterable<Model.Sq> {
                     sq._successor._sequenceNum = sq._sequenceNum + 1;
                 }
             }
-            else if (s1._sequenceNum != 0) {
+            if (s1._sequenceNum != 0) {
                 if (_sequenceNum == 0) {
-                    releaseGroup(_group);
+                    releaseGroup(group());
                 }
-                for (Sq sq = s1; sq._predecessor != null; sq = sq._predecessor) {
+                Sq sq = s1;
+                for (; sq._predecessor != null; sq = sq._predecessor) {
                     sq._predecessor._sequenceNum = sq._sequenceNum - 1;
                 }
             }
             for (Sq sq = this; sq._successor != null; sq = sq._successor) {
-                sq._successor._head = this._head;
+                sq._successor._head = head();
             }
             if (_sequenceNum == 0 && s1._sequenceNum == 0) {
-                _head._group = joinGroups(_group, sgroup);
+                head()._group = joinGroups(group(), sgroup);
             }
             return true;
         }
+
+        /** helper method that checks if input and all
+         * predecessors of input do not have fixed sequence numbers.
+         * @param input the square where for loop starts at.
+         * @return true if no fixed seq numbers, false if some are fixed.
+         */
+        boolean noFixedPre(Sq input) {
+            Sq sq = input;
+            for (; sq._predecessor != null; sq = sq._predecessor) {
+                if (sq.hasFixedNum() || sq._predecessor.hasFixedNum()) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /** helper method that checks if input and all successors of
+         * input do not have a fixed sequence number.
+         * @param input the square where for loop starts at.
+         * @return true iff no fixed seq numbers, false if some are fixed.
+         */
+        boolean noFixedSuc(Sq input) {
+            Sq sq = input;
+            for (; sq._successor != null; sq = sq._successor) {
+                if (sq.hasFixedNum() || sq._successor.hasFixedNum()) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
 
         /** Disconnect me from my current successor, if any. */
         void disconnect() {
@@ -617,88 +644,55 @@ class Model implements Iterable<Model.Sq> {
                 return;
             }
             _unconnected += 1;
-            next._predecessor = _successor = null;
+            next._predecessor = null;
+            this._successor = null;
             if (_sequenceNum == 0) {
-                // FIXME: If both this and next are now one-element groups,
-                //        release their former group and set both group
-                //        numbers to -1.
-                //        Otherwise, if either is now a one-element group, set
-                //        its group number to -1 without releasing the group
-                //        number.
-                //        Otherwise, the group has been split into two multi-
-                //        element groups.  Create a new group for next.
-                if (this._predecessor == null && next._successor == null) {
-                    releaseGroup(_head._group);
-                    this._group = -1;
+                if (this.predecessor() == null && next.successor() == null) {
+                    releaseGroup(_group);
+                    _group = next._group = -1;
+                } else if (next._successor == null) {
                     next._group = -1;
-                }
-                else if (this._predecessor == null || next._successor == null) {
-                    if (this._predecessor == null) {
-                        this._group = -1;
-                    }
-                    else {
-                        next._group = -1;
-                    }
-                }
-                else {
+                } else if (_predecessor == null) {
+                    next._group = newGroup();
+                    releaseGroup(_group);
+                    _group = -1;
+                    next._group = newGroup();
+                } else {
                     next._group = newGroup();
                 }
             } else {
-                // FIXME: If neither this nor any square in its group that
-                //        precedes it has a fixed sequence number, set all
-                //        their sequence numbers to 0 and create a new group
-                //        for them if this has a current predecessor (other
-                //        set group to -1).
-                if (_predecessor != null) {
-                    boolean noFixed = true;
-                    for (Sq sq = this; sq._predecessor != null; sq = sq._predecessor) {
-                        if (sq._hasFixedNum == true || sq._predecessor._hasFixedNum == true) {
-                            noFixed = false;
-                            break;
-                        }
-                    }
-                    if (noFixed == true) {
-                        _group = newGroup();
-                        _sequenceNum = 0;
-                        for (Sq sq = this; sq._predecessor != null; sq = sq._predecessor) {
-                            sq._predecessor._sequenceNum = 0;
-                            sq._predecessor._group = _group;
-                        }
+                if (_predecessor != null && noFixedPre(this)) {
+                    _group = newGroup();
+                    _sequenceNum = 0;
+                    Sq q = this;
+                    for (; q._predecessor != null; q = q._predecessor) {
+                        q._predecessor._sequenceNum = 0;
+                        q._predecessor._group = _group;
                     }
                 }
-                else if (_predecessor == null) {
+                if (_predecessor == null) {
                     _group = -1;
-                }
-                // FIXME: If neither next nor any square in its group that
-                //        follows it has a fixed sequence number, set all
-                //        their sequence numbers to 0 and create a new
-                //        group for them if next has a current successor
-                //        (otherwise set next's group to -1.)
-                else if (next._successor != null) {
-                    boolean noFixed = true;
-                    for (Sq sq = next; sq._successor != null; sq = sq._successor) {
-                        if (sq._hasFixedNum == true || sq._successor._hasFixedNum == true) {
-                            noFixed = false;
-                            break;
-                        }
-                    }
-                    if (noFixed == true) {
-                        next._group = newGroup();
-                        next._sequenceNum = 0;
-                        for (Sq sq = next; sq._successor != null; sq = sq._successor) {
-                            sq._successor._sequenceNum = 0;
-                            sq._successor._group = next._group;
-                        }
+                    if (!hasFixedNum()) {
+                        _sequenceNum = 0;
                     }
                 }
-                else if (next._successor == null) {
+                if (next._successor != null && noFixedSuc(next)) {
+                    next._group = newGroup();
+                    next._sequenceNum = 0;
+                    Sq sq1 = next;
+                    for (; sq1._successor != null; sq1 = sq1._successor) {
+                        sq1._successor._sequenceNum = 0;
+                        sq1._successor._group = next._group;
+                    }
+                } else if (next._successor == null) {
                     next._group = -1;
+                    if (!next.hasFixedNum()) {
+                        next._sequenceNum = 0;
+                    }
                 }
             }
-            // FIXME: Set the _head of next and all squares in its group to
-            //        next.
             next._head = next;
-            for (Sq sq= next; sq._successor != null;sq = sq._successor) {
+            for (Sq sq = next; sq._successor != null; sq = sq._successor) {
                 sq._successor._head = next;
             }
         }
