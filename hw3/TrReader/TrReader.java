@@ -35,7 +35,9 @@ public class TrReader extends Reader {
         return i;
     }
 
-    public void close() {
+    @Override
+    public void close() throws IOException {
         _source = null;
     }
+
 }
