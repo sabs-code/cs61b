@@ -28,7 +28,7 @@ public class TrReader extends Reader {
         for (; i < len ; i++, j++) {
             int c =  _source.read();
             if (c == -1) {
-                break;
+                return -1;
             }
             String s = Character.toString((char) c);
             s = Translate.translate(s, _from, _to);
