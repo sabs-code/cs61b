@@ -1,32 +1,79 @@
+import com.sun.tools.internal.ws.processor.modeler.wsdl.WSDLModelerBase;
+
+import java.awt.event.WindowEvent;
+
 /** A WeirdList holds a sequence of integers.
- * @author your name here
+ * @author Sabrina Xia
  */
 public class WeirdList {
-    /** The empty sequence of integers. */
-    public static final WeirdList EMPTY =
-        null;  // TODO: REPLACE THIS LINE
 
-    /** A new WeirdList whose head is HEAD and tail is TAIL. */
-  public WeirdList(int head, WeirdList tail) { /* TODO: FILL IN */ }
+    private static class Empty extends WeirdList{
 
-    /** Returns the number of elements in the sequence that
-     *  starts with THIS. */
-    public int length() {
-        return 0;  // TODO: REPLACE THIS LINE
+        /**
+         * A new WeirdList whose head is HEAD and tail is TAIL.
+         *
+         * @param head
+         * @param tail
+         */
+        public Empty(int head, WeirdList tail) {
+            super(head, tail);
+        }
+
+        public int length() { return 0;}
+
+        @Override
+        public String toString() {
+            return "";
+        }
+
+        public WeirdList map(IntUnaryFunction func) {
+            return this;
+        }
+
     }
 
-    /** Return a string containing my contents as a sequence of numerals
-     *  each preceded by a blank.  Thus, if my list contains
-     *  5, 4, and 2, this returns " 5 4 2". */
+    /**
+     * The empty sequence of integers.
+     */
+    public static final WeirdList EMPTY = new Empty(0, null);
+
+    private int _head;
+    private WeirdList _tail;
+
+    /**
+     * A new WeirdList whose head is HEAD and tail is TAIL.
+     */
+    public WeirdList(int head, WeirdList tail) {
+        _head = head;
+        _tail = tail;
+    }
+
+    /**
+     * Returns the number of elements in the sequence that
+     * starts with THIS.
+     */
+    public int length() {
+        return 1 + _tail.length();
+    }
+
+    /**
+     * Return a string containing my contents as a sequence of numerals
+     * each preceded by a blank.  Thus, if my list contains
+     * 5, 4, and 2, this returns " 5 4 2".
+     */
     @Override
     public String toString() {
-        return ""; // TODO: REPLACE THIS LINE
+        return " " + _head + _tail.toString();
     }
 
-    /** Part 3b: Apply FUNC.apply to every element of THIS WeirdList in
-     *  sequence, and return a WeirdList of the resulting values. */
+    /**
+     * Part 3b: Apply FUNC.apply to every element of THIS WeirdList in
+     * sequence, and return a WeirdList of the resulting values.
+     */
     public WeirdList map(IntUnaryFunction func) {
-        return null;  // TODO: REPLACE THIS LINE
+        int newHead = func.apply(_head);
+        WeirdList L = _tail;
+        return new WeirdList(newHead, L.map(func));
     }
 
     /*
@@ -59,7 +106,6 @@ public class WeirdList {
      * }
      * You are NOT required to do this, just an extra thing you can
      * do if you want to avoid making a separate .java file. */
-
 }
 
 /*

@@ -12,7 +12,20 @@ public class Translate {
         /* NOTE: The try {...} catch is a technicality to keep Java happy. */
         char[] buffer = new char[S.length()];
         try {
-            throw new IOException(); //TODO: REPLACE THIS LINE WITH YOUR CODE.
+            char c = S.charAt(0);
+            char[] f = from.toCharArray();
+            char[] t = to.toCharArray();
+            if (f.length != t.length) {
+                throw new IOException();
+            }
+            for (int i = 0; i < f.length; i++) {
+                if (c == f[i]) {
+                    c = t[i];
+                    break;
+                }
+            }
+            String s = Character.toString(c);
+            return s;
         } catch (IOException e) {
             return null;
         }

@@ -19,7 +19,7 @@ public class TrReaderTest {
      * source for this test, but scrambled. */
     @Test
     public void testSource() throws IOException {
-        Reader r = makeStringReader(new FileReader("TrReaderTest.java"), 4096);
+        Reader r = makeStringReader(new FileReader("TrReader/TrReaderTest.java"), 4096);
 
         TrReader trR = new TrReader(r, "import jav.", "josh hug___");
         char[] cbuf = new char[250];

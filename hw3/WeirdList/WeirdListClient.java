@@ -1,14 +1,34 @@
 /** Functions to increment and sum the elements of a WeirdList. */
 class WeirdListClient {
 
+    private static class Add implements IntUnaryFunction {
+        private int _toAdd;
+        private int _sum;
+        public Add(int x) {
+            _toAdd = x;
+            _sum = 0;
+        }
+        public int apply(int x) {
+            _sum += x;
+            x += _toAdd;
+            return x;
+        }
+    }
+
+
+
     /** Return the result of adding N to each element of L. */
     static WeirdList add(WeirdList L, int n) {
-        return null; // TODO: REPLACE THIS LINE
+        Add a = new Add(n);
+        return L.map(a);
     }
+
 
     /** Return the sum of all the elements in L. */
     static int sum(WeirdList L) {
-        return 0; // TODO: REPLACE THIS LINE
+        Add a = new Add(0);
+        L.map(a);
+        return a._sum;
     }
 
     /* IMPORTANT: YOU ARE NOT ALLOWED TO USE RECURSION IN ADD AND SUM
