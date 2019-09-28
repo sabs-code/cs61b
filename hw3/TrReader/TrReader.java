@@ -25,12 +25,15 @@ public class TrReader extends Reader {
     public int read(char[] cbuf, int off, int len) throws IOException {
         int j = off;
         int i = 0;
-        for (; i < len; i++, j++) {
-            char c = (char) _source.read();
-            String s = Character.toString(c);
+        for (; i < len ; i++, j++) {
+            int c =  _source.read();
+            if (c == -1) {
+                break;
+            }
+            String s = Character.toString((char) c);
             s = Translate.translate(s, _from, _to);
             c = s.charAt(0);
-            cbuf[j] = c;
+            cbuf[j] = (char) c;
         }
         return i;
     }
