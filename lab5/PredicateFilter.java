@@ -11,15 +11,18 @@ class PredicateFilter<Value> extends Filter<Value> {
     /** A filter of values from INPUT that tests them with PRED,
      *  delivering only those for which PRED is true. */
     PredicateFilter(Predicate<Value> pred, Iterator<Value> input) {
-        super(input); //FIXME ??
-        // FIXME: REPLACE THIS LINE WITH YOUR CODE
+        super(input);
+        _pred = pred;
     }
 
     @Override
     protected boolean keep() {
-        return false;  // FIXME: REPLACE THIS LINE WITH YOUR CODE
+        if (_pred.test(_next)) {
+            return true;
+        }
+        return false;
     }
 
-    // FIXME: REPLACE THIS LINE WITH YOUR CODE
+    private Predicate<Value> _pred;
 
 }

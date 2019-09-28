@@ -5,22 +5,32 @@ import utils.Filter;
  *  that are larger than all the preceding values to go through the
  *  Filter.  So, if its input delivers (1, 2, 3, 3, 2, 1, 5), then it
  *  will produce (1, 2, 3, 5).
- *  @author You
+ *  @author Sabrina Xia
  */
 class MonotonicFilter<Value extends Comparable<Value>> extends Filter<Value> {
 
     /** A filter of values from INPUT that delivers a monotonic
      *  subsequence.  */
     MonotonicFilter(Iterator<Value> input) {
-        super(input); //FIXME?
-        // FIXME: REPLACE THIS LINE WITH YOUR CODE
+        super(input);
+        _max = null;
+        _input = input;
     }
 
     @Override
     protected boolean keep() {
-        return false;  // FIXME: REPLACE THIS LINE WITH YOUR CODE
+        if (_max == null) {
+            _max = _next;
+            return true;
+        }
+        else if (_next.compareTo(_max) > 0) {
+            _max = _next;
+            return true;
+        }
+        return false;
+
     }
-    
-    // FIXME: ADD ANY ADDITIONAL FIELDS REQUIRED HERE
+    private Value _max;
+    private Iterator<Value> _input;
 
 }

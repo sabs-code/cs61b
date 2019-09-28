@@ -3,22 +3,28 @@ import utils.Filter;
 
 /** A kind of Filter that lets through every other VALUE element of
  *  its input sequence, starting with the first.
- *  @author Your Name
+ *  @author Sabrina Xia
  */
 class AlternatingFilter<Value> extends Filter<Value> {
 
     /** A filter of values from INPUT that lets through every other
      *  value. */
     AlternatingFilter(Iterator<Value> input) {
-        super(input); //FIXME?
-        // FIXME: REPLACE THIS LINE WITH YOUR CODE
+        super(input);
+        _count = 0;
     }
 
     @Override
     protected boolean keep() {
-        return false;  // FIXME: REPLACE THIS LINE WITH YOUR CODE
+        if ((_count % 2) == 0) {
+            _count += 1;
+            return true;
+        } else {
+            _count += 1;
+            return false;
+        }
     }
 
-    // FIXME: REPLACE THIS LINE WITH YOUR CODE
+    private int _count;
 
 }

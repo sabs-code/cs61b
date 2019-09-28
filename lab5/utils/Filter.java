@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /** An iterator that filters the output of another iterator.
- *  @author You. */
+ *  @author Sabrina Xia. */
 public abstract class Filter<Value>
     implements Iterator<Value>, Iterable<Value> {
 
