@@ -8,7 +8,7 @@ import static org.junit.Assert.*;
 import static enigma.TestUtils.*;
 
 /** The suite of all JUnit tests for the Permutation class.
- *  @author
+ *  @author Sabrina Xia
  */
 public class PermutationTest {
 
@@ -23,7 +23,7 @@ public class PermutationTest {
 
     /** Check that perm has an alphabet whose size is that of
      *  FROMALPHA and TOALPHA and that maps each character of
-     *  FROMALPHA to the corresponding character of FROMALPHA, and
+     *  FROMALPHA to the corresponding character of TOALPHA, and
      *  vice-versa. TESTID is used in error messages. */
     private void checkPerm(String testId,
                            String fromAlpha, String toAlpha) {
@@ -45,10 +45,47 @@ public class PermutationTest {
 
     /* ***** TESTS ***** */
 
+
+
     @Test
     public void checkIdTransform() {
         perm = new Permutation("", UPPER);
         checkPerm("identity", UPPER_STRING, UPPER_STRING);
     }
+
+    @Test
+    public void checkTransformAB() {
+        perm = new Permutation("(AB)", UPPER);
+        String to = "BA" + UPPER_STRING.substring(2, 26);
+        checkPerm("A & B permutation", UPPER_STRING, to);
+    }
+
+    @Test
+    public void checkTransformAZ() {
+        perm = new Permutation("(AZ)", UPPER);
+        String to = "Z" + UPPER_STRING.substring(1,25) + "A";
+        checkPerm("A & Z permutation", UPPER_STRING, to);
+    }
+
+    @Test
+    public void checkTransformLong() {
+        perm = new Permutation("(AUFHSL) (BEIRQ)", UPPER);
+        String to = "UECDIHGSRJKAMNOPBQLTFVWXYZ";
+        checkPerm("two cycles", UPPER_STRING, to);
+        assertFalse(perm.derangement());
+    }
+
+    @Test
+    public void checkShortAlphabet() {
+        Alphabet al = new Alphabet("NHPQSUCM");
+        String from = al.strAlphabet();
+        perm = new Permutation("(HQUCMNSP)", al);
+        assertEquals(8, perm.size());
+        assertEquals(1, perm.permute(2));
+        assertEquals(1, perm.invert(3));
+        assertTrue(perm.derangement());
+    }
+
+
 
 }
