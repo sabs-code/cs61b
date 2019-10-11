@@ -71,15 +71,4 @@ public class MovingRotorTest {
         checkRotor("Rotor I set", UPPER_STRING, NAVALZ_MAP.get("I"));
     }
 
-    @Test
-    public void checkAtNotch() {
-        Permutation pI = new Permutation("(AELTPHQXRU) (BKNW) "
-                + "(CMOY) (DFG) (IV) (JZ) (S)", UPPER);
-        Rotor I = new MovingRotor("I", pI, "Q");
-        I.set('Q');
-        if (I.atNotch()) {
-            I.advance();
-        }
-        assertEquals(17, I.setting());
-    }
 }
