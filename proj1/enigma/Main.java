@@ -1,7 +1,10 @@
 package enigma;
 
+import com.sun.tools.apt.mirror.declaration.EnumDeclarationImpl;
 import com.sun.xml.internal.xsom.impl.scd.Iterators;
 
+import javax.script.ScriptEngineManager;
+import java.awt.color.ICC_ColorSpace;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -81,15 +84,12 @@ public final class Main {
      *  results to _output. */
     private void process() {
         Machine m = readConfig();
-        String settings = settings(m);
-        setUp(m, settings);
-        String encrypted = "";
-        _input.useDelimiter("\\s");
-        while (_input.hasNext()) {
-            String converted = m.convert(_input.next());
-            encrypted += converted;
+        settings(m);
+        while (_input.hasNextLine()) {
+            String s = _input.nextLine().replaceAll(" ", "");
+            String encrypted = m.convert(s);
+            printMessageLine(encrypted);
         }
-        printMessageLine(encrypted);
     }
 
     /** Return an Enigma machine configured from the contents of configuration
@@ -99,13 +99,13 @@ public final class Main {
             String alpha = _config.nextLine();
             _alphabet = new Alphabet(alpha);
             int numRotors = _config.nextInt();
-            _config.skip("\\s");
             int numPawls = _config.nextInt();
             ArrayList<Rotor> rotors = new ArrayList<Rotor>();
-            while (_config.hasNextLine()) {
+            _config.nextLine();
+            while (_config.hasNext()) {
                 rotors.add(readRotor());
             }
-            Machine m = new Machine(_alphabet, numRotors, numPawls, rotors);
+            return new Machine(_alphabet, numRotors, numPawls, rotors);
         } catch (NoSuchElementException excp) {
             throw error("configuration file truncated");
         }
@@ -114,19 +114,12 @@ public final class Main {
     /** Return a rotor, reading its description from _config. */
     private Rotor readRotor() {
         try {
-            String name = "";
-            while (!_config.hasNext("\\s")) {
-                name += _config.next();
-            }
-            _config.skip("\\s");
-            String type = _config.next();
-            String notch = "";
-            while (_config.hasNext("^\\s")) {
-                notch += _config.next();
-            }
-            _config.skip("\\s");
+            String name = _config.next();
+            String helper = _config.next();
+            String type = helper.substring(0, 1);
+            String notch = helper.substring(1);
             String cycles = _config.nextLine();
-            if (!_config.hasNext("[A-Z]")) {
+            if (!_config.hasNext("[a-zA-Z]+")) {
                 cycles += _config.nextLine();
             }
             Permutation perm = new Permutation(cycles, _alphabet);
@@ -144,40 +137,30 @@ public final class Main {
     }
 
     /** Insert rotors & plugboard specified in input file and return settings. */
-    public String settings(Machine m) {
-        if (!_input.hasNext("\\*")) {
+    public void settings(Machine m) {
+        String s = _input.next();
+        if (!s.equals("*")) {
             throw new EnigmaException("input wrong format");
         }
-        _input.next();
         String[] rotors = new String[m.numRotors()];
         for(int i = 0; i < m.numRotors(); i++) {
-            String rotorName = "";
-            _input.skip("\\s");
-            while (_input.hasNext("[a-zA-Z]")) {
-                rotorName += _input.next();
-            }
+            String rotorName = _input.next();
             rotors[i] = rotorName;
         }
         m.insertRotors(rotors);
-        _input.skip("\\s");
-        String next = "";
-        if (!_input.hasNext("[A-Z]")) {
-            throw new EnigmaException("input wrong format");
+        String setting = _input.next();
+        m.setRotors(setting);
+        if (setting.startsWith("(")) {
+            throw new EnigmaException("invalid input");
         }
-        while (!_input.hasNext("\\s")) {
-            next += _input.next();
+        String plugboardCycle = "";
+        while (!_input.hasNext("[a-zA-Z]|[a-zA-Z]+")) {
+            plugboardCycle += _input.next();
         }
-        String plugboardCycle = _input.nextLine();
-        plugboardCycle.trim();
         if (plugboardCycle.length() > 0) {
-            if (plugboardCycle.startsWith("(")) {
-                Permutation plugboard = new Permutation(plugboardCycle, _alphabet);
-                m.setPlugboard(plugboard);
-            } else {
-                throw new EnigmaException("input wrong format");
-            }
+            Permutation plugboard = new Permutation(plugboardCycle, _alphabet);
+            m.setPlugboard(plugboard);
         }
-        return next;
     }
 
     /** Set M according to the specification given on SETTINGS,
@@ -193,12 +176,14 @@ public final class Main {
         for (int i = 0; i < msg.length(); i++) {
             encrypted += msg.charAt(i);
             if (encrypted.length() == 5) {
-                _output.print(encrypted);
+                _output.print(encrypted + " ");
                 encrypted = "";
             }
         }
         if (encrypted.length() > 0) {
-            _output.print(encrypted);
+            _output.print(encrypted + "\n");
+        } else {
+            _output.print("\n");
         }
     }
 

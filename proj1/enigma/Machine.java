@@ -124,8 +124,6 @@ class Machine {
             if (_myRotors[i + 1].atNotch()) {
                 rotate[i] = true;
                 rotate[i + 1] = true;
-            } else {
-                rotate[i] = false;
             }
         }
         for (int i = 1; i < rotate.length; i++) {
@@ -150,7 +148,7 @@ class Machine {
         }
         for (int i = 1; i < _numRotors; i++) {
             Rotor r = _myRotors[i];
-            c = r.convertForward(c);
+            c = r.convertBackward(c);
         }
         if (_plugboard != null) {
             c = _plugboard.permute(c);

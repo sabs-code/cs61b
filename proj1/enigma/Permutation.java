@@ -22,7 +22,7 @@ class Permutation {
         _cycles = cycles.split("\\)");
         _numCycles = _cycles.length;
         for (int i = 0; i < _numCycles; i++) {
-            _cycles[i] = _cycles[i].replaceAll("\\(", " ");
+            _cycles[i] = _cycles[i].replaceAll("\\(", "");
             _cycles[i] = _cycles[i].trim();
         }
         String used = "";
@@ -30,8 +30,8 @@ class Permutation {
             String thisCycle = _cycles[i];
             for (int j = 0; j < thisCycle.length(); j++) {
                 char c = thisCycle.charAt(j);
-                if (_alphabet.strAlphabet().indexOf(c) == -1) {
-                    throw new EnigmaException(c + "not in alphabet");
+                if (!_alphabet.contains(c)) {
+                    throw new EnigmaException(c + "      invalid cycle!");
                 }
                 else if (used.indexOf(c) != -1) {
                     throw new EnigmaException("repeated" + c);
@@ -39,6 +39,9 @@ class Permutation {
                 used += c;
             }
         }
+    }
+    public String[] cycles() {
+        return _cycles;
     }
 
     /** Add the cycle c0->c1->...->cm->c0 to the permutation, where CYCLE is
@@ -69,8 +72,7 @@ class Permutation {
      *  alphabet size. */
     int permute(int p) {
         p = wrap(p);
-        String alpha = _alphabet.strAlphabet();
-        char ch = alpha.charAt(p);
+        char ch = _alphabet.toChar(p);
         char cResult = ch;
         for (int i = 0; i < _numCycles; i++) {
             String thisCycle = _cycles[i];
@@ -84,7 +86,7 @@ class Permutation {
                 cResult = thisCycle.charAt(index + 1);
             }
         }
-        int result = alpha.indexOf(cResult);
+        int result = _alphabet.toInt(cResult);
         return result;
     }
 
@@ -92,8 +94,7 @@ class Permutation {
      *  to  C modulo the alphabet size. */
     int invert(int c) {
         c = wrap(c);
-        String alpha = _alphabet.strAlphabet();
-        char ch = alpha.charAt(c);
+        char ch = _alphabet.toChar(c);
         char cResult = ch;
         for (int i = 0; i < _numCycles; i++) {
             String thisCycle = _cycles[i];
@@ -107,7 +108,7 @@ class Permutation {
                 cResult = thisCycle.charAt(index - 1);
             }
         }
-        int result = alpha.indexOf(cResult);
+        int result = _alphabet.toInt(cResult);
         return result;
     }
 

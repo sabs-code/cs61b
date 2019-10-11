@@ -1,5 +1,7 @@
 package enigma;
 
+import javax.print.DocFlavor;
+
 import static enigma.EnigmaException.*;
 
 /** Superclass that represents a rotor in the enigma machine.
@@ -57,8 +59,7 @@ class Rotor {
 
     /** Set setting() to character CPOSN. */
     void set(char cposn) {
-        String alpha = _permutation.alphabet().strAlphabet();
-        int posn = alpha.indexOf(cposn);
+        int posn = alphabet().toInt(cposn);
         _setting = posn;
     }
 
