@@ -1,6 +1,5 @@
 package enigma;
 
-import javax.print.DocFlavor;
 
 import static enigma.EnigmaException.*;
 

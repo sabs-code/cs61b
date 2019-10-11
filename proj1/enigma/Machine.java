@@ -1,9 +1,7 @@
 package enigma;
 
-import jdk.jshell.spi.ExecutionControl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Collection;
 
 import static enigma.EnigmaException.*;
@@ -47,8 +45,7 @@ class Machine {
         int pawls = _numPawls;
         if (rotors.length > _numRotors) {
             throw new EnigmaException("not enough rotor slots in machine");
-        }
-        else if (rotors.length < _numRotors) {
+        } else if (rotors.length < _numRotors) {
             throw new EnigmaException("not enough rotors");
         }
         _myRotors = new Rotor[_numRotors];
@@ -70,17 +67,13 @@ class Machine {
                     if (p.rotates()) {
                         moving = true;
                         pawls -= 1;
-                    }
-                    else if (moving && !p.rotates()) {
+                    } else if (moving && !p.rotates()) {
                         throw new EnigmaException("fixedRotors wrong posn");
-                    }
-                    else if (pawls < 0) {
+                    } else if (pawls < 0) {
                         throw new EnigmaException("too many moving rotors");
-                    }
-                    else if (i == 0 && !p.reflecting()) {
+                    } else if (i == 0 && !p.reflecting()) {
                         throw new EnigmaException("leftmost not reflector");
-                    }
-                    else if (i != 0 && p.reflecting()) {
+                    } else if (i != 0 && p.reflecting()) {
                         throw new EnigmaException("reflector wrong posn");
                     }
                 }

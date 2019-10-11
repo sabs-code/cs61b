@@ -1,16 +1,11 @@
 package enigma;
 
-import com.sun.tools.apt.mirror.declaration.EnumDeclarationImpl;
-import com.sun.xml.internal.xsom.impl.scd.Iterators;
 
-import javax.script.ScriptEngineManager;
-import java.awt.color.ICC_ColorSpace;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
@@ -125,8 +120,7 @@ public final class Main {
             Permutation perm = new Permutation(cycles, _alphabet);
             if (type.equals("M")) {
                 return new MovingRotor(name, perm, notch);
-            }
-            else if (type.equals("N")) {
+            } else if (type.equals("N")) {
                 return new FixedRotor(name, perm);
             } else {
                 return new Reflector(name, perm);
@@ -136,14 +130,14 @@ public final class Main {
         }
     }
 
-    /** Insert rotors & plugboard specified in input file and return settings. */
+    /** Insert rotors & plugboard specified in input file to M. */
     public void settings(Machine m) {
         String s = _input.next();
         if (!s.equals("*")) {
             throw new EnigmaException("input wrong format");
         }
         String[] rotors = new String[m.numRotors()];
-        for(int i = 0; i < m.numRotors(); i++) {
+        for (int i = 0; i < m.numRotors(); i++) {
             String rotorName = _input.next();
             rotors[i] = rotorName;
         }

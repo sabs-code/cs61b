@@ -1,8 +1,5 @@
 package enigma;
 
-import jdk.jshell.spi.ExecutionControl;
-
-import java.io.IOException;
 
 /** An alphabet of encodable characters.  Provides a mapping from characters
  *  to and from indices into the alphabet.

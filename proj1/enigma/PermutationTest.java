@@ -63,7 +63,7 @@ public class PermutationTest {
     @Test
     public void checkTransformAZ() {
         perm = new Permutation("(AZ)", UPPER);
-        String to = "Z" + UPPER_STRING.substring(1,25) + "A";
+        String to = "Z" + UPPER_STRING.substring(1, 25) + "A";
         checkPerm("A & Z permutation", UPPER_STRING, to);
     }
 

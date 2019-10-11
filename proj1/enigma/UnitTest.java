@@ -1,6 +1,5 @@
 package enigma;
 
-import net.sf.saxon.functions.UpperCase;
 import org.junit.Test;
 import ucb.junit.textui;
 
@@ -15,8 +14,8 @@ import static enigma.TestUtils.*;
  */
 public class UnitTest {
     Permutation pI = new Permutation(
-            "(AELTPHQXRU) (BKNW) (CMOY) (DFG) (IV)   " +
-                    " (JZ) (S)      ", UPPER);
+            "(AELTPHQXRU) (BKNW) (CMOY) (DFG) (IV)   "
+                    + " (JZ) (S)      ", UPPER);
     Rotor I = new MovingRotor("I", pI, "Q");
     Permutation pII = new Permutation(
             "(FIXVYOMW) (CDKLHUP) (ESZ) (BJ)   (GR) (NT) (A) (Q)", UPPER);
@@ -39,8 +38,6 @@ public class UnitTest {
         rotors.add(II);
         rotors.add(III);
         rotors.add(B);
-        String[] cycles = new String[] {"FIXVYOMW", "CDKLHUP", "ESZ", "BJ", "GR", "NT", "A", "Q"};
-        assertEquals(cycles.length, pII.cycles().length);
         Machine m = new Machine(UPPER, 4, 3, rotors);
         String[] inserted = new String[] {"B", "III", "II", "I"};
         m.insertRotors(inserted);
@@ -113,7 +110,8 @@ public class UnitTest {
         assertEquals("OKDWA", m.convert("cared"));
         assertEquals("LBFKU", m.convert("ofcod"));
         assertEquals("CMUTJZUIO", m.convert("inginJava"));
-        assertEquals("XTYQFBDZRGBYFZCASYRU", m.convert("IwasscaredofusingGit"));
+        assertEquals("XTYQFBDZRGBYFZCASYRU",
+                m.convert("IwasscaredofusingGit"));
         assertEquals("UAAFWOAGFKOCJGMUMOPCHTAVRSA",
                 m.convert("andstartingalltheseprojects"));
         assertEquals("HXHFRUXOFCBLRYSDXFCZXGVFANA",
@@ -126,7 +124,8 @@ public class UnitTest {
     /** Run the JUnit tests in this package. Add xxxTest.class entries to
      *  the arguments of runClasses to run other JUnit tests. */
     public static void main(String[] ignored) {
-        textui.runClasses(PermutationTest.class, MovingRotorTest.class, UnitTest.class);
+        textui.runClasses(PermutationTest.class, MovingRotorTest.class,
+                UnitTest.class);
     }
 
 

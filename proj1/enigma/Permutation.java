@@ -1,8 +1,5 @@
 package enigma;
 
-import jdk.jshell.spi.ExecutionControl;
-
-import java.util.ArrayList;
 
 import static enigma.EnigmaException.*;
 
@@ -32,16 +29,12 @@ class Permutation {
                 char c = thisCycle.charAt(j);
                 if (!_alphabet.contains(c)) {
                     throw new EnigmaException(c + "      invalid cycle!");
-                }
-                else if (used.indexOf(c) != -1) {
+                } else if (used.indexOf(c) != -1) {
                     throw new EnigmaException("repeated" + c);
                 }
                 used += c;
             }
         }
-    }
-    public String[] cycles() {
-        return _cycles;
     }
 
     /** Add the cycle c0->c1->...->cm->c0 to the permutation, where CYCLE is
@@ -79,8 +72,7 @@ class Permutation {
             int index = thisCycle.indexOf(ch);
             if (index == -1) {
                 continue;
-            }
-            else if (index == thisCycle.length() - 1) {
+            } else if (index == thisCycle.length() - 1) {
                 cResult = thisCycle.charAt(0);
             } else {
                 cResult = thisCycle.charAt(index + 1);
@@ -101,8 +93,7 @@ class Permutation {
             int index = thisCycle.indexOf(ch);
             if (index == -1) {
                 continue;
-            }
-            else if (index == 0) {
+            } else if (index == 0) {
                 cResult = thisCycle.charAt(thisCycle.length() - 1);
             } else {
                 cResult = thisCycle.charAt(index - 1);
@@ -160,7 +151,7 @@ class Permutation {
     /** Permutation cycles in a String Array. */
     private String[] _cycles;
 
-    /** Number of elements in _CYCLES */
+    /** Number of elements in _CYCLES. */
     private int _numCycles;
 
     /** Characters that map to themselves (self loops). */
