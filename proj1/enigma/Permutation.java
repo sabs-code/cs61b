@@ -1,5 +1,7 @@
 package enigma;
 
+import jdk.jshell.spi.ExecutionControl;
+
 import java.util.ArrayList;
 
 import static enigma.EnigmaException.*;
@@ -22,6 +24,20 @@ class Permutation {
         for (int i = 0; i < _numCycles; i++) {
             _cycles[i] = _cycles[i].replaceAll("\\(", " ");
             _cycles[i] = _cycles[i].trim();
+        }
+        String used = "";
+        for (int i = 0; i < _numCycles; i++) {
+            String thisCycle = _cycles[i];
+            for (int j = 0; j < thisCycle.length(); j++) {
+                char c = thisCycle.charAt(j);
+                if (_alphabet.strAlphabet().indexOf(c) == -1) {
+                    throw new EnigmaException(c + "not in alphabet");
+                }
+                else if (used.indexOf(c) != -1) {
+                    throw new EnigmaException("repeated" + c);
+                }
+                used += c;
+            }
         }
     }
 
@@ -100,6 +116,9 @@ class Permutation {
     char permute(char p) {
         String alpha = _alphabet.strAlphabet();
         int i = alpha.indexOf(p);
+        if (i == -1) {
+            throw new EnigmaException("no" + p + "in alphabet");
+        }
         int intResult = permute(i);
         char result = alpha.charAt(intResult);
         return result;
@@ -109,6 +128,9 @@ class Permutation {
     char invert(char c) {
         String alpha = _alphabet.strAlphabet();
         int i = alpha.indexOf(c);
+        if (i == -1) {
+            throw new EnigmaException("no" + c + "in alphabet");
+        }
         int intResult = invert(i);
         char result = alpha.charAt(intResult);
         return result;

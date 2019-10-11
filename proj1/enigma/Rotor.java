@@ -29,6 +29,7 @@ class Rotor {
         return _permutation;
     }
 
+
     /** Return the size of my alphabet. */
     int size() {
         return _permutation.size();
@@ -51,7 +52,7 @@ class Rotor {
 
     /** Set setting() to POSN.  */
     void set(int posn) {
-        _setting = posn;
+        _setting = _permutation.wrap(posn);
     }
 
     /** Set setting() to character CPOSN. */

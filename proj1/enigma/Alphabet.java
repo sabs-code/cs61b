@@ -1,5 +1,7 @@
 package enigma;
 
+import jdk.jshell.spi.ExecutionControl;
+
 import java.io.IOException;
 
 /** An alphabet of encodable characters.  Provides a mapping from characters
@@ -12,6 +14,14 @@ class Alphabet {
      *  K (numbering from 0). No character may be duplicated. */
     Alphabet(String chars) {
         _chars = chars;
+        String used = "";
+        for (int i = 0; i < chars.length(); i++) {
+            char c = chars.charAt(i);
+            if (used.indexOf(c) != -1) {
+                throw new EnigmaException("invalid alphabet");
+            }
+            used += c;
+        }
     }
 
     /** A default alphabet of all upper-case characters. */
@@ -32,13 +42,20 @@ class Alphabet {
     /** Returns character number INDEX in the alphabet, where
      *  0 <= INDEX < size(). */
     char toChar(int index) {
+        if (index < 0 || index >= size()) {
+            throw new EnigmaException("index out of range of alphabet");
+        }
         return _chars.charAt(index);
     }
 
     /** Returns the index of character preprocess(CH), which must be in
      *  the alphabet. This is the inverse of toChar(). */
     int toInt(char ch) {
-        return _chars.indexOf(ch);
+        int result = _chars.indexOf(ch);
+        if (result == -1) {
+            throw new EnigmaException(ch + "not in alphabet");
+        }
+        return result;
     }
 
     /** Returns the characters in this alphabet in a string. */

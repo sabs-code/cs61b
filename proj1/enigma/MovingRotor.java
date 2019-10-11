@@ -27,6 +27,16 @@ class MovingRotor extends Rotor {
         set(setting() + 1);
     }
 
+    @Override
+    boolean atNotch() {
+        Alphabet a = alphabet();
+        char c = a.toChar(setting());
+        if (_notches.indexOf(c) > -1) {
+            return true;
+        }
+        return false;
+    }
+
     /** My notches. */
     private String _notches;
 
