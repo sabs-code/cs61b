@@ -77,20 +77,35 @@ public class UnitTest {
         assertEquals("YZRX", m.convert("GETA"));
     }
 
+    Alphabet lower = new Alphabet("abcdefghijklmnopqrstuvwxyz");
+    Permutation pI0 = new Permutation("(aeltphqxru) (bknw) (cmoy) (dfg) (iv) (jz) (s) ", lower);
+    Rotor I0 = new MovingRotor("I", pI0, "q");
+    Permutation pII0 = new Permutation(
+            "(fixvyomw) (cdklhup) (esz) (bj) (gr) (nt) (a) (q)", lower);
+    Rotor II0 = new MovingRotor("II", pII0, "e");
+    Permutation pB0 = new Permutation(
+            "(ae) (bn) (ck) (dq) (fu) (gy) (hw) (ij) (lo) "
+                    + "(mp) (rx) (sz) (tv)", lower);
+    Rotor B0 = new Reflector("B", pB0);
+    Permutation pBeta0 = new Permutation(
+            "(albevfcyodjwugnmqtzskpr) (hix)", lower);
+    Rotor beta0 = new FixedRotor("Beta", pBeta0);
+
     @Test
     public void checkLowerCase() {
         Collection<Rotor> rotors = new ArrayList<Rotor>(12);
-        rotors.add(I);
-        rotors.add(II);
-        rotors.add(beta);
-        rotors.add(B);
-        Machine m = new Machine(UPPER, 4, 2, rotors);
+        rotors.add(I0);
+        rotors.add(II0);
+        rotors.add(beta0);
+        rotors.add(B0);
+        Machine m = new Machine(lower, 4, 2, rotors);
         String[] inserted = new String[] {"B", "Beta", "II", "I"};
         m.insertRotors(inserted);
-        m.setRotors("UDO");
-        assertEquals("YZRX", m.convert("geta"));
+        m.setRotors("udo");
+        assertEquals("yzrx", m.convert("geta"));
 
     }
+
 
     @Test
     public void checkLong() {
@@ -106,18 +121,18 @@ public class UnitTest {
         Permutation plugboard = new Permutation("(TD) (KC) (JZ)", UPPER);
         m.setPlugboard(plugboard);
         m.setRotors("AAAA");
-        assertEquals("HGJNB", m.convert("Iwass"));
-        assertEquals("OKDWA", m.convert("cared"));
-        assertEquals("LBFKU", m.convert("ofcod"));
-        assertEquals("CMUTJZUIO", m.convert("inginJava"));
+        assertEquals("HGJNB", m.convert("Iwass".toUpperCase()));
+        assertEquals("OKDWA", m.convert("cared".toUpperCase()));
+        assertEquals("LBFKU", m.convert("ofcod".toUpperCase()));
+        assertEquals("CMUTJZUIO", m.convert("inginJava".toUpperCase()));
         assertEquals("XTYQFBDZRGBYFZCASYRU",
-                m.convert("IwasscaredofusingGit"));
+                m.convert("IwasscaredofusingGit".toUpperCase()));
         assertEquals("UAAFWOAGFKOCJGMUMOPCHTAVRSA",
-                m.convert("andstartingalltheseprojects"));
+                m.convert("andstartingalltheseprojects".toUpperCase()));
         assertEquals("HXHFRUXOFCBLRYSDXFCZXGVFANA",
-                m.convert("Compilerkeepsgettingmadatme"));
+                m.convert("Compilerkeepsgettingmadatme".toUpperCase()));
         assertEquals("CNBZHSNQMCMNIRWMTTTQBRNKRXDRPN",
-                m.convert("Nowmyprojectonlyrunsinmydreams"));
+                m.convert("Nowmyprojectonlyrunsinmydreams".toUpperCase()));
     }
 
 

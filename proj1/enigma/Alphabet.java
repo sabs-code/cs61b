@@ -48,7 +48,6 @@ class Alphabet {
     /** Returns the index of character preprocess(CH), which must be in
      *  the alphabet. This is the inverse of toChar(). */
     int toInt(char ch) {
-        ch = Character.toUpperCase(ch);
         int result = _chars.indexOf(ch);
         if (result == -1) {
             throw new EnigmaException(ch + "not in alphabet");

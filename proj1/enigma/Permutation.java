@@ -28,7 +28,7 @@ class Permutation {
             for (int j = 0; j < thisCycle.length(); j++) {
                 char c = thisCycle.charAt(j);
                 if (!_alphabet.contains(c)) {
-                    throw new EnigmaException(c + "      invalid cycle!");
+                    throw new EnigmaException(c + "invalid cycle!");
                 } else if (used.indexOf(c) != -1) {
                     throw new EnigmaException("repeated" + c);
                 }

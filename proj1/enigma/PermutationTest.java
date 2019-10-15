@@ -86,6 +86,11 @@ public class PermutationTest {
         assertTrue(perm.derangement());
     }
 
+    @Test (expected = EnigmaException.class)
+    public void checkCycles() {
+        perm = new Permutation("(sdhui)", UPPER);
+    }
+
 
 
 }
