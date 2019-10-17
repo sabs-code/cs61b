@@ -79,11 +79,15 @@ public final class Main {
      *  results to _output. */
     private void process() {
         Machine m = readConfig();
-        settings(m);
         while (_input.hasNextLine()) {
-            String s = _input.nextLine().replaceAll(" ", "");
-            String encrypted = m.convert(s);
-            printMessageLine(encrypted);
+            if (_input.hasNext("\\*")) {
+                settings(m);
+            }
+            else {
+                String s = _input.nextLine().replaceAll(" ", "");
+                String encrypted = m.convert(s);
+                printMessageLine(encrypted);
+            }
         }
     }
 
@@ -147,10 +151,7 @@ public final class Main {
         if (setting.startsWith("(")) {
             throw new EnigmaException("invalid input");
         }
-        String plugboardCycle = "";
-        while (!_input.hasNext("[a-zA-Z]|[a-zA-Z]+")) {
-            plugboardCycle += _input.next();
-        }
+        String plugboardCycle = _input.nextLine();
         if (plugboardCycle.length() > 0) {
             Permutation plugboard = new Permutation(plugboardCycle, _alphabet);
             m.setPlugboard(plugboard);
