@@ -79,6 +79,7 @@ public final class Main {
      *  results to _output. */
     private void process() {
         Machine m = readConfig();
+        settings(m);
         while (_input.hasNextLine()) {
             if (_input.hasNext("\\*")) {
                 settings(m);
@@ -147,10 +148,10 @@ public final class Main {
         }
         m.insertRotors(rotors);
         String setting = _input.next();
-        m.setRotors(setting);
-        if (setting.startsWith("(")) {
-            throw new EnigmaException("invalid input");
+        if (setting.startsWith("\\(")) {
+            throw error("rotor setting missing");
         }
+        m.setRotors(setting);
         String plugboardCycle = _input.nextLine();
         if (plugboardCycle.length() > 0) {
             Permutation plugboard = new Permutation(plugboardCycle, _alphabet);
