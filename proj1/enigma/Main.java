@@ -152,10 +152,18 @@ public final class Main {
             throw error("rotor setting missing");
         }
         m.setRotors(setting);
-        String plugboardCycle = _input.nextLine();
-        if (plugboardCycle.length() > 0) {
-            Permutation plugboard = new Permutation(plugboardCycle, _alphabet);
-            m.setPlugboard(plugboard);
+        String helper = _input.nextLine();
+        Scanner schelper = new Scanner(helper);
+        while (schelper.hasNext()) {
+            if (schelper.hasNext("[a-zA-Z]+")) {
+                String rings = schelper.next();
+                m.setRings(rings);
+            } else {
+                String plugboardCycle = schelper.nextLine();
+                Permutation plugboard = new Permutation(
+                        plugboardCycle, _alphabet);
+                m.setPlugboard(plugboard);
+            }
         }
     }
 

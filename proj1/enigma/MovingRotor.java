@@ -30,7 +30,8 @@ class MovingRotor extends Rotor {
     @Override
     boolean atNotch() {
         Alphabet a = alphabet();
-        char c = a.toChar(setting());
+        int p = permutation().wrap(setting() + ring());
+        char c = a.toChar(p);
         if (_notches.indexOf(c) > -1) {
             return true;
         }
