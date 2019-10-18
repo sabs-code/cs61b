@@ -146,6 +146,13 @@ class Machine {
         }
     }
 
+    String settings() {
+        String result = "";
+        for (int i = 0; i < _numRotors; i++) {
+            result += _myRotors[i].setting();
+        }
+        return result;
+    }
 
     /** Returns the result of converting the input character C (as an
      *  index in the range 0..alphabet size - 1), after first advancing
