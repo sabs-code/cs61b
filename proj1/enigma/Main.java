@@ -83,8 +83,7 @@ public final class Main {
         while (_input.hasNextLine()) {
             if (_input.hasNext("\\*")) {
                 settings(m);
-            }
-            else {
+            } else {
                 String s = _input.nextLine().replaceAll(" ", "");
                 String encrypted = m.convert(s);
                 printMessageLine(encrypted);

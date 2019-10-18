@@ -104,9 +104,10 @@ class Machine {
         }
     }
 
-    /** Set the ring settings of my rotors according to RINGS, which must be
-     *  a string of numRotors()-1 characters in my alphabet. The first letter refers
-     *  to the leftmost rotor setting (not counting the reflector). */
+    /** Set the ring settings of my rotors according to RINGS, which
+     *  must be a string of numRotors()-1 characters in my alphabet. The
+     *  first letter refers to the leftmost rotor setting (not counting
+     *  the reflector). */
     void setRings(String rings) {
         if (rings.length() != _numRotors - 1) {
             throw error("ring setting is not valid length");
@@ -146,13 +147,6 @@ class Machine {
         }
     }
 
-    String settings() {
-        String result = "";
-        for (int i = 0; i < _numRotors; i++) {
-            result += _myRotors[i].setting();
-        }
-        return result;
-    }
 
     /** Returns the result of converting the input character C (as an
      *  index in the range 0..alphabet size - 1), after first advancing

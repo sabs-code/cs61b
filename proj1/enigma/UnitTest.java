@@ -78,15 +78,16 @@ public class UnitTest {
     }
 
     Alphabet lower = new Alphabet("abcdefghijklmnopqrstuvwxyz");
-    Permutation pI0 = new Permutation("(aeltphqxru) (bknw) (cmoy) (dfg) (iv) (jz) (s) ", lower);
-    Rotor I0 = new MovingRotor("I", pI0, "q");
+    Permutation pI0 = new Permutation("(aeltphqxru) (bknw) "
+            + "(cmoy) (dfg) (iv) (jz) (s) ", lower);
+    Rotor i = new MovingRotor("I", pI0, "q");
     Permutation pII0 = new Permutation(
             "(fixvyomw) (cdklhup) (esz) (bj) (gr) (nt) (a) (q)", lower);
-    Rotor II0 = new MovingRotor("II", pII0, "e");
+    Rotor ii = new MovingRotor("II", pII0, "e");
     Permutation pB0 = new Permutation(
             "(ae) (bn) (ck) (dq) (fu) (gy) (hw) (ij) (lo) "
                     + "(mp) (rx) (sz) (tv)", lower);
-    Rotor B0 = new Reflector("B", pB0);
+    Rotor b = new Reflector("B", pB0);
     Permutation pBeta0 = new Permutation(
             "(albevfcyodjwugnmqtzskpr) (hix)", lower);
     Rotor beta0 = new FixedRotor("Beta", pBeta0);
@@ -94,10 +95,10 @@ public class UnitTest {
     @Test
     public void checkLowerCase() {
         Collection<Rotor> rotors = new ArrayList<Rotor>(12);
-        rotors.add(I0);
-        rotors.add(II0);
+        rotors.add(i);
+        rotors.add(ii);
         rotors.add(beta0);
-        rotors.add(B0);
+        rotors.add(b);
         Machine m = new Machine(lower, 4, 2, rotors);
         String[] inserted = new String[] {"B", "Beta", "II", "I"};
         m.insertRotors(inserted);
