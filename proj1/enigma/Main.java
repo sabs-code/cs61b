@@ -81,7 +81,10 @@ public final class Main {
         Machine m = readConfig();
         settings(m);
         while (_input.hasNextLine()) {
-            if (_input.hasNext("\\*")) {
+            if (_input.findInLine("(?=\\S)") == null) {
+                _output.println();
+                _input.nextLine();
+            } else if (_input.hasNext("\\*")) {
                 settings(m);
             } else {
                 String s = _input.nextLine().replaceAll(" ", "");
@@ -100,8 +103,7 @@ public final class Main {
             int numRotors = _config.nextInt();
             int numPawls = _config.nextInt();
             ArrayList<Rotor> rotors = new ArrayList<Rotor>();
-            _config.nextLine();
-            while (_config.hasNext()) {
+            while (_config.hasNextLine()) {
                 rotors.add(readRotor());
             }
             return new Machine(_alphabet, numRotors, numPawls, rotors);
@@ -116,9 +118,9 @@ public final class Main {
             String name = _config.next();
             String helper = _config.next();
             String type = helper.substring(0, 1);
-            String notch = helper.substring(1);
+            String notch = helper.length() > 1 ? helper.substring(1) : "";
             String cycles = _config.nextLine();
-            if (!_config.hasNext("[a-zA-Z]+")) {
+            if (_config.hasNext("\\([^(]+\\)")) {
                 cycles += _config.nextLine();
             }
             Permutation perm = new Permutation(cycles, _alphabet);
@@ -186,7 +188,7 @@ public final class Main {
         if (encrypted.length() > 0) {
             _output.print(encrypted + "\n");
         } else {
-            _output.print("\n");
+            _output.println();
         }
     }
 

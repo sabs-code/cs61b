@@ -19,10 +19,10 @@ public class UnitTest {
     Rotor I = new MovingRotor("I", pI, "Q");
     Permutation pII = new Permutation(
             "(FIXVYOMW) (CDKLHUP) (ESZ) (BJ)   (GR) (NT) (A) (Q)", UPPER);
-    Rotor II = new MovingRotor("II", pII, "E");
+    Rotor ii0 = new MovingRotor("II", pII, "E");
     Permutation pIII = new Permutation(
             "(ABDHPEJT) (CFLVMZOYQIRWUKXSG) (N)", UPPER);
-    Rotor III = new MovingRotor("III", pIII, "V");
+    Rotor iii0 = new MovingRotor("III", pIII, "V");
     Permutation pB = new Permutation(
             "(AE) (BN) (CK) (DQ) (FU) (GY) (HW) (IJ) (LO) "
             + "(MP) (RX) (SZ) (TV)", UPPER);
@@ -35,8 +35,8 @@ public class UnitTest {
     public void checkMachine() {
         Collection<Rotor> rotors = new ArrayList<Rotor>(12);
         rotors.add(I);
-        rotors.add(II);
-        rotors.add(III);
+        rotors.add(ii0);
+        rotors.add(iii0);
         rotors.add(B);
         Machine m = new Machine(UPPER, 4, 3, rotors);
         String[] inserted = new String[] {"B", "III", "II", "I"};
@@ -62,7 +62,7 @@ public class UnitTest {
     public void checkFixedRotors() {
         Collection<Rotor> rotors = new ArrayList<Rotor>(12);
         rotors.add(I);
-        rotors.add(II);
+        rotors.add(ii0);
         rotors.add(beta);
         rotors.add(B);
         Machine m = new Machine(UPPER, 4, 2, rotors);
@@ -72,9 +72,9 @@ public class UnitTest {
         assertEquals(24, m.convert(6));
         assertEquals(25, m.convert(4));
         assertEquals(17, m.convert(19));
-        assertEquals(23, m.convert(0));
+        assertEquals(14, m.convert(0));
         m.setRotors("UDO");
-        assertEquals("YZRX", m.convert("GETA"));
+        assertEquals("YZRO", m.convert("GETA"));
     }
 
     Alphabet lower = new Alphabet("abcdefghijklmnopqrstuvwxyz");
@@ -103,7 +103,7 @@ public class UnitTest {
         String[] inserted = new String[] {"B", "Beta", "II", "I"};
         m.insertRotors(inserted);
         m.setRotors("udo");
-        assertEquals("yzrx", m.convert("geta"));
+        assertEquals("yzro", m.convert("geta"));
 
     }
 
@@ -112,8 +112,8 @@ public class UnitTest {
     public void checkLong() {
         Collection<Rotor> rotors = new ArrayList<Rotor>(12);
         rotors.add(I);
-        rotors.add(II);
-        rotors.add(III);
+        rotors.add(ii0);
+        rotors.add(iii0);
         rotors.add(beta);
         rotors.add(B);
         Machine m = new Machine(UPPER, 5, 3, rotors);

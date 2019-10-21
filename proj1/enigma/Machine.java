@@ -137,7 +137,9 @@ class Machine {
         for (int i = 1; i < _numRotors - 1; i++) {
             if (_myRotors[i + 1].atNotch()) {
                 rotate[i] = true;
-                rotate[i + 1] = true;
+                if (_myRotors[i].rotates()) {
+                    rotate[i + 1] = true;
+                }
             }
         }
         for (int i = 1; i < rotate.length; i++) {
