@@ -80,7 +80,7 @@ public final class Main {
     private void process() {
         Machine m = readConfig();
         settings(m);
-        while (_input.hasNextLine()) {
+        while (_input.hasNext()) {
             if (_input.findInLine("(?=\\S)") == null) {
                 _output.println();
                 _input.nextLine();
@@ -103,7 +103,7 @@ public final class Main {
             int numRotors = _config.nextInt();
             int numPawls = _config.nextInt();
             ArrayList<Rotor> rotors = new ArrayList<Rotor>();
-            while (_config.hasNextLine()) {
+            while (_config.hasNext()) {
                 rotors.add(readRotor());
             }
             return new Machine(_alphabet, numRotors, numPawls, rotors);
@@ -148,13 +148,13 @@ public final class Main {
             rotors[i] = rotorName;
         }
         m.insertRotors(rotors);
-        String setting = _input.next();
+        String helper = _input.nextLine();
+        Scanner schelper = new Scanner(helper);
+        String setting = schelper.next();
         if (setting.startsWith("\\(")) {
             throw error("rotor setting missing");
         }
         m.setRotors(setting);
-        String helper = _input.nextLine();
-        Scanner schelper = new Scanner(helper);
         while (schelper.hasNext()) {
             if (schelper.hasNext("[a-zA-Z]+")) {
                 String rings = schelper.next();
