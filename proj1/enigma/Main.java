@@ -120,7 +120,7 @@ public final class Main {
             String type = helper.substring(0, 1);
             String notch = helper.length() > 1 ? helper.substring(1) : "";
             String cycles = _config.nextLine();
-            if (_config.hasNext("\\([^(]+\\)")) {
+            if (_config.hasNext("\\([^()]+\\)")) {
                 cycles += _config.nextLine();
             }
             Permutation perm = new Permutation(cycles, _alphabet);
