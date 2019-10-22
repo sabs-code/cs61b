@@ -103,7 +103,7 @@ public final class Main {
             int numRotors = _config.nextInt();
             int numPawls = _config.nextInt();
             ArrayList<Rotor> rotors = new ArrayList<Rotor>();
-            while (_config.hasNextLine()) {
+            while (_config.hasNext()) {
                 rotors.add(readRotor());
             }
             return new Machine(_alphabet, numRotors, numPawls, rotors);
