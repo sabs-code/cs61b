@@ -16,7 +16,7 @@ public class UnitTest {
     Permutation pI = new Permutation(
             "(AELTPHQXRU) (BKNW) (CMOY) (DFG) (IV)   "
                     + " (JZ) (S)      ", UPPER);
-    Rotor I = new MovingRotor("I", pI, "Q");
+    Rotor i = new MovingRotor("I", pI, "Q");
     Permutation pII = new Permutation(
             "(FIXVYOMW) (CDKLHUP) (ESZ) (BJ)   (GR) (NT) (A) (Q)", UPPER);
     Rotor ii0 = new MovingRotor("II", pII, "E");
@@ -34,7 +34,7 @@ public class UnitTest {
     @Test
     public void checkMachine() {
         Collection<Rotor> rotors = new ArrayList<Rotor>(12);
-        rotors.add(I);
+        rotors.add(i);
         rotors.add(ii0);
         rotors.add(iii0);
         rotors.add(B);
@@ -61,7 +61,7 @@ public class UnitTest {
     @Test
     public void checkFixedRotors() {
         Collection<Rotor> rotors = new ArrayList<Rotor>(12);
-        rotors.add(I);
+        rotors.add(i);
         rotors.add(ii0);
         rotors.add(beta);
         rotors.add(B);
@@ -80,7 +80,7 @@ public class UnitTest {
     Alphabet lower = new Alphabet("abcdefghijklmnopqrstuvwxyz");
     Permutation pI0 = new Permutation("(aeltphqxru) (bknw) "
             + "(cmoy) (dfg) (iv) (jz) (s) ", lower);
-    Rotor i = new MovingRotor("I", pI0, "q");
+    Rotor i0 = new MovingRotor("I", pI0, "q");
     Permutation pII0 = new Permutation(
             "(fixvyomw) (cdklhup) (esz) (bj) (gr) (nt) (a) (q)", lower);
     Rotor ii = new MovingRotor("II", pII0, "e");
@@ -95,7 +95,7 @@ public class UnitTest {
     @Test
     public void checkLowerCase() {
         Collection<Rotor> rotors = new ArrayList<Rotor>(12);
-        rotors.add(i);
+        rotors.add(i0);
         rotors.add(ii);
         rotors.add(beta0);
         rotors.add(b);
@@ -111,7 +111,7 @@ public class UnitTest {
     @Test
     public void checkLong() {
         Collection<Rotor> rotors = new ArrayList<Rotor>(12);
-        rotors.add(I);
+        rotors.add(i);
         rotors.add(ii0);
         rotors.add(iii0);
         rotors.add(beta);
