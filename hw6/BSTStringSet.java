@@ -1,3 +1,6 @@
+import org.antlr.v4.runtime.misc.NotNull;
+
+import java.lang.reflect.Array;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.List;
@@ -6,9 +9,9 @@ import java.util.Stack;
 
 /**
  * Implementation of a BST based String Set.
- * @author
+ * @author Sabrina Xia
  */
-public class BSTStringSet implements StringSet, Iterable<String> {
+public class BSTStringSet implements SortedStringSet, Iterable<String> {
     /** Creates a new empty set. */
     public BSTStringSet() {
         _root = null;
@@ -16,17 +19,50 @@ public class BSTStringSet implements StringSet, Iterable<String> {
 
     @Override
     public void put(String s) {
-        // FIXME: PART A
+        if (_root == null) {
+            _root = new Node(s);
+        } else {
+            Node node = _root;
+            while (true) {
+                int comp = s.compareTo(node.s);
+                if (comp > 0) {
+                    if (node.right != null) {
+                        node = node.right;
+                    } else {
+                        node.right = new Node(s);
+                        break;
+                    }
+                } else {
+                    if (node.left != null) {
+                        node = node.left;
+                    } else {
+                        node.left = new Node(s);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     @Override
     public boolean contains(String s) {
-        return false; // FIXME: PART A
+        BSTIterator i = new BSTIterator(_root);
+        while (i.hasNext()) {
+            if (i.next().equals(s)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
     public List<String> asList() {
-        return null; // FIXME: PART A
+        BSTIterator i = new BSTIterator(_root);
+        ArrayList<String> result = new ArrayList<String>();
+        while (i.hasNext()) {
+            result.add(i.next());
+        }
+        return result;
     }
 
 
@@ -96,9 +132,10 @@ public class BSTStringSet implements StringSet, Iterable<String> {
     }
 
     // FIXME: UNCOMMENT THE NEXT LINE FOR PART B
-    // @Override
+    @Override
     public Iterator<String> iterator(String low, String high) {
-        return null;  // FIXME: PART B
+        Iterator i = iterator();
+        
     }
 
 
