@@ -145,9 +145,9 @@ public class BSTStringSet implements SortedStringSet, Iterable<String> {
         private String _high;
 
         BoundedBSTIterator(Node n, String low, String high) {
-            addTree(n);
             _low = low;
             _high = high;
+            addTree(n);
         }
 
         @Override
