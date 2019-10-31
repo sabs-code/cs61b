@@ -134,10 +134,56 @@ public class BSTStringSet implements SortedStringSet, Iterable<String> {
     // FIXME: UNCOMMENT THE NEXT LINE FOR PART B
     @Override
     public Iterator<String> iterator(String low, String high) {
-        Iterator i = iterator();
-        
+        return new BoundedBSTIterator(_root, low, high);
     }
 
+
+
+    private static class BoundedBSTIterator implements Iterator<String> {
+        private Stack<Node> _toDo = new Stack<>();
+        private String _low;
+        private String _high;
+
+        BoundedBSTIterator(Node n, String low, String high) {
+            addTree(n);
+            _low = low;
+            _high = high;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return !_toDo.empty();
+        }
+
+        @Override
+        public String next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            Node node = _toDo.pop();
+            addTree(node.right);
+            return node.s;
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+
+        private void addTree(Node node) {
+            while (node != null) {
+                int leftcomp = _low.compareTo(node.s);
+                int rightcomp = _high.compareTo(node.s);
+                if (leftcomp < 0 && rightcomp > 0) {
+                    _toDo.push(node);
+                }
+                if (leftcomp < 0) {
+                    node = node.left;
+                }
+            }
+        }
+
+    }
 
     /** Root node of the tree. */
     private Node _root;
