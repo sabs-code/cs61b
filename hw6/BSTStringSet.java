@@ -1,4 +1,4 @@
-import org.antlr.v4.runtime.misc.NotNull;
+
 
 import java.lang.reflect.Array;
 import java.util.Iterator;
@@ -46,10 +46,13 @@ public class BSTStringSet implements SortedStringSet, Iterable<String> {
 
     @Override
     public boolean contains(String s) {
-        BSTIterator i = new BSTIterator(_root);
-        while (i.hasNext()) {
-            if (i.next().equals(s)) {
+        for (Node n = _root; n != null;) {
+            if (s.equals(n.s)) {
                 return true;
+            } else if (s.compareTo(n.s) > 0) {
+                n = n.right;
+            } else {
+                n = n.left;
             }
         }
         return false;
@@ -147,7 +150,9 @@ public class BSTStringSet implements SortedStringSet, Iterable<String> {
         BoundedBSTIterator(Node n, String low, String high) {
             _low = low;
             _high = high;
-            addTree(n);
+            if (_high.compareTo(n.s) > 0) {
+                addTree(n);
+            }
         }
 
         @Override
@@ -161,7 +166,9 @@ public class BSTStringSet implements SortedStringSet, Iterable<String> {
                 throw new NoSuchElementException();
             }
             Node node = _toDo.pop();
-            addTree(node.right);
+            if (_high.compareTo(node.s) > 0) {
+                addTree(node.right);
+            }
             return node.s;
         }
 
@@ -173,12 +180,11 @@ public class BSTStringSet implements SortedStringSet, Iterable<String> {
         private void addTree(Node node) {
             while (node != null) {
                 int leftcomp = _low.compareTo(node.s);
-                int rightcomp = _high.compareTo(node.s);
-                if (leftcomp < 0 && rightcomp > 0) {
-                    _toDo.push(node);
-                }
                 if (leftcomp < 0) {
+                    _toDo.push(node);
                     node = node.left;
+                } else {
+                    break;
                 }
             }
         }
