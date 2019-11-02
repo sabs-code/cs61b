@@ -13,9 +13,11 @@ public class ListUtilities {
 	 * @param predicate a predicate function, returns 'true' if an element should be kept
 	 */
 	public static <T> List<T> filter(List<T> input, Predicate<T> predicate) {
-		for (int i = 0; i < input.size(); i++) {
+		for (int i = 0; i < input.size();) {
 			if (!predicate.test(input.get(i))) {
 				input.remove(i);
+			} else {
+				i += 1;
 			}
 		}
 

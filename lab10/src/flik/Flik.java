@@ -4,7 +4,7 @@
 package flik;
 
 public class Flik {
-	public static boolean isSameNumber(Integer a, Integer b) {
+	public static boolean isSameNumber(int a, int b) {
 		return a == b;
 	}
 }
