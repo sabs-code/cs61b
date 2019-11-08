@@ -150,9 +150,7 @@ public class BSTStringSet implements SortedStringSet, Iterable<String> {
         BoundedBSTIterator(Node n, String low, String high) {
             _low = low;
             _high = high;
-            if (_high.compareTo(n.s) > 0) {
-                addTree(n);
-            }
+            addTree(n);
         }
 
         @Override

@@ -69,8 +69,7 @@ public class CompactLinkedList<T> extends AbstractSequentialList<T> {
         }
 
         @Override
-        public T next() {
-            return null; // REPLACE WITH SOLUTION
+        public T next() {return null;
         }
 
         @Override
@@ -107,6 +106,20 @@ public class CompactLinkedList<T> extends AbstractSequentialList<T> {
              * no longer in use (for example, that were being used, but were
              * then removed).  For this exercise, you needn't bother. */
             // FILL IN
+            boolean full = true;
+            int i = 0;
+            for (; i < _data.length; i ++) {
+                if (_data[i] == null) {
+                    full = false;
+                    break;
+                }
+            }
+            if (full) {
+                throw new IllegalStateException("list full");
+            }
+            _data[i] = obj;
+
+            _size += 1;
         }
 
 

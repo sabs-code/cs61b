@@ -1,6 +1,9 @@
 package tablut;
 
+import javax.naming.InitialContext;
+import javax.swing.*;
 import java.util.Formatter;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -10,7 +13,7 @@ import static tablut.Move.mv;
 
 
 /** The state of a Tablut Game.
- *  @author
+ *  @author Sabrina Xia
  */
 class Board {
 
@@ -60,7 +63,17 @@ class Board {
 
     /** Clears the board to the initial position. */
     void init() {
-        // FIXME
+        _position = new HashMap<>();
+        for (int i = SIZE * SIZE - 1; i >= 0; i--) {
+            _position.put(sq(i), EMPTY);
+        }
+        for (int i = 0; i < INITIAL_ATTACKERS.length; i++) {
+            _position.put(INITIAL_ATTACKERS[i], BLACK);
+        }
+        for (int i = 0; i < INITIAL_DEFENDERS.length; i++) {
+            _position.put(INITIAL_DEFENDERS[i], WHITE);
+        }
+        _position.put(sq(4, 4), KING);
     }
 
     /** Set the move limit to LIM.  It is an error if 2*LIM <= moveCount(). */
@@ -109,7 +122,7 @@ class Board {
     /** Return the contents of the square at (COL, ROW), where
      *  0 <= COL, ROW <= 9. */
     final Piece get(int col, int row) {
-        return null; // FIXME
+        return _position.get(sq(col, row));
     }
 
     /** Return the contents of the square at COL ROW. */
@@ -261,6 +274,9 @@ class Board {
     private int _moveCount;
     /** True when current board is a repeated position (ending the game). */
     private boolean _repeated;
+
+    /** Positions of all pieces on the board. */
+    private HashMap<Square, Piece> _position;
 
     // FIXME: Other state?
 

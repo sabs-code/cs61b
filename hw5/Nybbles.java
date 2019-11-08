@@ -26,10 +26,14 @@ public class Nybbles {
             throw new IndexOutOfBoundsException();
         } else {
             int index = k / 8;
-            int store = _data[index];
-            int left = 4 * (k % 8);
-            int result = (store << left) >>> 28;
-            return result;
+            int num = _data[k/8];
+            int helper = 15 << (4 * index);
+            int result = num & helper;
+            if ((result >> (4 * index)) == 1) {
+                return result & 7;
+            } else {
+                return -1 * (result & 7);
+            }
         }
     }
 
@@ -48,7 +52,7 @@ public class Nybbles {
                 int helper = get(i) << (32 - (i % 8 + 1) * 4);
                 result += helper;
             }
-            result +=val << 32 - ((k % 8) + 1) * 4;
+            result += val << 32 - ((k % 8) + 1) * 4;
             _data[index] = result ^ store;
         }
     }

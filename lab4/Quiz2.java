@@ -22,9 +22,22 @@ public class Quiz2 {
     /** The sum VALS'[0] + VALS'[1] + ... where VALS'[i] is the 
      *  minimum of VALS[i] and MAX. */
     public static int clippedSum(int[] vals, int max) {
-        Accum acc = null /* REPLACE WITH ANSWER */;
+        Accum acc = new Accum1();
         return acc.reduce (vals);
     }
 }
 
 // Add any other classes you need here:
+
+class Accum1 extends Accum {
+    @Override
+    static int reduce(int[] vals) {
+        for (int i = 0; i < vals.length; i++) {
+            vals[i] = Math.min(vals[i], max);
+        }
+        for (int x: vals) {
+            accum(x);
+        }
+        return result();
+    }
+}
