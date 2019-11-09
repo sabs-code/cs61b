@@ -1,5 +1,6 @@
 package tablut;
 
+import afu.org.checkerframework.dataflow.qual.TerminatesExecution;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import ucb.junit.textui;
@@ -15,10 +16,23 @@ public class UnitTest {
         textui.runClasses(UnitTest.class);
     }
 
-    /** A dummy test as a placeholder for real ones. */
+    /** Test makemove. */
     @Test
-    public void dummyTest() {
-        assertTrue("There are no unit tests!", false);
+    public void testMakemove() {
+        Board b = new Board();
+        assertTrue(b.isLegal(Square.sq("a", "4")));
+        b.makeMove(Move.mv("a4-c"));
+        assertEquals(Piece.EMPTY, b.get(0, 3));
+        assertEquals(Piece.BLACK, b.get(2, 3));
+        assertEquals(Piece.WHITE, b.turn());
+    }
+
+    /** Tests if Board can distinguish legal/illegal moves. */
+    @Test
+    public void testLegal() {
+        Board b = new Board();
+        assertTrue(b.isLegal(Move.mv("a4-d")));
+        assertFalse(b.isLegal(Move.mv("a4-f")));
     }
 
 }
