@@ -24,7 +24,14 @@ public class UnitTest {
         b.makeMove(Move.mv("a4-c"));
         assertEquals(Piece.EMPTY, b.get(0, 3));
         assertEquals(Piece.BLACK, b.get(2, 3));
-        assertEquals(Piece.WHITE, b.turn());
+        assertEquals(Piece.WHITE, b.turn());;
+    }
+
+    @Test
+    public void testMove() {
+        Board b = new Board();
+        b.makeMove(Move.mv("h5-6"));
+        assertEquals(Piece.BLACK, b.get(7, 5));
     }
 
     /** Tests if Board can distinguish legal/illegal moves. */
@@ -33,6 +40,7 @@ public class UnitTest {
         Board b = new Board();
         assertTrue(b.isLegal(Move.mv("a4-d")));
         assertFalse(b.isLegal(Move.mv("a4-f")));
+        assertTrue(b.isLegal(Move.mv("h5-6")));
     }
 
 }

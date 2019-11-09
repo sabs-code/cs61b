@@ -82,8 +82,9 @@ class Board {
         _position.put(sq(4, 4), KING);
         _moveCount = 0;
         _turn = BLACK;
-        _winner = EMPTY;
+        _winner = null;
         _repeated = false;
+        recordPosition();
     }
 
     /** Set the move limit to LIM.  It is an error if 2*LIM <= moveCount(). */
@@ -240,6 +241,30 @@ class Board {
         assert isLegal(from, to);
         put(get(from), to);
         put(EMPTY, from);
+        if (exists(to.col(), to.row() + 2)) {
+            Square s1 = sq(to.col(), to.row() + 2);
+            if (get(s1).opponent() == get(to).opponent() || s1 == THRONE) {
+                capture(to, s1);
+            }
+        }
+        if (exists(to.col(), to.row() - 2)) {
+            Square s2 = sq(to.col(), to.row() - 2);
+            if (get(s2).opponent() == get(to).opponent() || s2 == THRONE) {
+                capture(to, s2);
+            }
+        }
+        if (exists(to.col() + 2, to.row())) {
+            Square s3 = sq(to.col() + 2, to.row());
+            if (get(s3).opponent() == get(to).opponent() || s3 == THRONE) {
+                capture(to, s3);
+            }
+        }
+        if (exists(to.col() - 2, to.row())) {
+            Square s4 = sq(to.col() - 2, to.row());
+            if (get(s4).opponent() == get(to).opponent() || s4 == THRONE) {
+                capture(to, s4);
+            }
+        }
         checkRepeated();
         _moveCount += 1;
         _turn = get(to).opponent();
@@ -263,7 +288,17 @@ class Board {
                     || sq1 == STHRONE) {
                 if (p0.opponent() != p1.opponent()) {
                     if (p1 != KING) {
-                        put(EMPTY, sq1);
+                        if (sq0 == THRONE) {
+                            if (p0 == EMPTY) {
+                                put(EMPTY, sq1);
+                            } else if (p1 == BLACK) {
+                                put(EMPTY, sq1);
+                            }
+                        } else {
+                            if (p0.opponent() == p2.opponent()) {
+                                put(EMPTY, sq1);
+                            }
+                        }
                     } else {
                         Square dia1 = sq0.diag1(sq1);
                         Square dia2 = sq0.diag2(sq1);
@@ -271,13 +306,15 @@ class Board {
                         Piece d2 = get(dia2);
                         if (d1 != EMPTY && d2 != EMPTY) {
                             if (d1.opponent() != p1.opponent()
-                                    && d2.opponent() != d2.opponent()) {
-                                put(EMPTY, sq1);
+                                    && d2.opponent() != p1.opponent()) {
+                                if (p2 == EMPTY) {
+                                    put(EMPTY, sq1);
+                                }
                             }
                         }
                     }
                 }
-            } else if (sq1 == THRONE && p1 == KING) {
+            } else if (sq1 == THRONE) {
                 if (p0 == BLACK && p2 == BLACK) {
                     Square d1 = sq0.diag1(THRONE);
                     Square d2 = sq0.diag2(THRONE);
@@ -289,10 +326,7 @@ class Board {
                     }
                 }
             } else {
-                if (p0.opponent() == p2.opponent() && p2.opponent()
-                        != p1.opponent()) {
-                    put(EMPTY, sq1);
-                }
+                put(EMPTY, sq1);
             }
         }
 
