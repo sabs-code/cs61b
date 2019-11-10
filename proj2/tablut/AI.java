@@ -1,13 +1,16 @@
 package tablut;
 
+import java.util.List;
+
 import static java.lang.Math.*;
 
+import static tablut.Square.NUM_SQUARES;
 import static tablut.Square.sq;
 import static tablut.Board.THRONE;
 import static tablut.Piece.*;
 
 /** A Player that automatically generates moves.
- *  @author
+ *  @author Sabrina Xia
  */
 class AI extends Player {
 
@@ -38,7 +41,15 @@ class AI extends Player {
 
     @Override
     String myMove() {
-        return ""; // FIXME
+        Move m = findMove();
+        _controller.reportMove(m);
+        String s;
+        if (m.from().col() == m.to().col()) {
+            s = String.format("%s-%c", m.from(), (char) m.to().row() + '1');
+        } else {
+            s = String.format("%s-%c", m.from(), (char) m.to().col() + 'a');
+        }
+        return s;
     }
 
     @Override
@@ -51,7 +62,11 @@ class AI extends Player {
     private Move findMove() {
         Board b = new Board(board());
         _lastFoundMove = null;
-        // FIXME
+        if (_myPiece == BLACK) {
+            findMove(b, maxDepth(b), true, -1, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        } else {
+            findMove(b, maxDepth(b), true, 1, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        }
         return _lastFoundMove;
     }
 
@@ -67,18 +82,83 @@ class AI extends Player {
      *  of the board value and does not set _lastMoveFound. */
     private int findMove(Board board, int depth, boolean saveMove,
                          int sense, int alpha, int beta) {
-        return 0; // FIXME
+        if (depth == 0 || board.winner() != null) {
+            return staticScore(board);
+        } else {
+            int value;
+            if (sense == 1) {
+                List<Move> legalMoves = board.legalMoves(WHITE);
+                if (legalMoves.size() == 0) {
+                    return staticScore(board);
+                }
+                for (Move m : legalMoves) {
+                    board.makeMove(m);
+                    value = findMove(board, depth - 1, false, -1,
+                            alpha, beta);
+                    board.undo();
+                    if (value > alpha) {
+                        if (saveMove) {
+                            _lastFoundMove = m;
+                        }
+                        alpha = value;
+                        if (alpha >= beta) {
+                            break;
+                        }
+                    }
+                }
+                return alpha;
+            } else {
+                List<Move> legalMoves = board.legalMoves(BLACK);
+                if (legalMoves.size() == 0) {
+                    return staticScore(board);
+                }
+                for (Move m : legalMoves) {
+                    board.makeMove(m);
+                    value = findMove(board, depth - 1, false, 1,
+                            alpha, beta);
+                    board.undo();
+                    if (value < beta) {
+                        if (saveMove) {
+                            _lastFoundMove = m;
+                        }
+                        beta = value;
+                        if (alpha >= beta) {
+                            break;
+                        }
+                    }
+                }
+                return beta;
+            }
+        }
     }
 
     /** Return a heuristically determined maximum search depth
      *  based on characteristics of BOARD. */
     private static int maxDepth(Board board) {
-        return 4; // FIXME?
+        return 4;
     }
 
     /** Return a heuristic value for BOARD. */
     private int staticScore(Board board) {
-        return 0;  // FIXME
+        if (board.winner() == WHITE) {
+            return WINNING_VALUE;
+        } else if (board.winner() == BLACK) {
+            return -1 * WINNING_VALUE;
+        } else {
+            Square kingSq = board.kingPosition();
+            int kScore;
+            kScore = Math.abs(kingSq.col() - 4) + Math.abs(kingSq.row() - 4);
+            int white = 0;
+            int black = 0;
+            for (int i = 0; i < NUM_SQUARES; i++) {
+                if (board.get(sq(i)) == WHITE) {
+                    white += 1;
+                } else if (board.get(sq(i)) == BLACK) {
+                    black += 1;
+                }
+            }
+            return kScore + 5 * white - 5 * black;
+        }
     }
 
     // FIXME: More here.

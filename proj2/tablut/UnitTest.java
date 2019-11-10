@@ -1,6 +1,8 @@
 package tablut;
 
+import afu.org.checkerframework.common.value.qual.StaticallyExecutable;
 import afu.org.checkerframework.dataflow.qual.TerminatesExecution;
+import org.junit.Assert;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import ucb.junit.textui;
@@ -43,6 +45,11 @@ public class UnitTest {
         assertTrue(b.isLegal(Move.mv("h5-6")));
     }
 
+    @Test
+    public void testlegalMoves() {
+        Board b = new Board();
+        assertEquals(10, b.legalMoves(Piece.BLACK).size());
+    }
 }
 
 
