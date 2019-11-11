@@ -1,10 +1,7 @@
 package tablut;
 
-import net.sf.saxon.functions.Empty;
 
-import javax.naming.InitialContext;
-import javax.swing.*;
-import java.lang.reflect.Array;
+
 import java.util.*;
 
 import static tablut.Piece.*;

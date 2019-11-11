@@ -1,7 +1,6 @@
 package tablut;
 
-import afu.org.checkerframework.common.value.qual.StaticallyExecutable;
-import afu.org.checkerframework.dataflow.qual.TerminatesExecution;
+
 import org.junit.Assert;
 import org.junit.Test;
 import static org.junit.Assert.*;
