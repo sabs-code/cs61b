@@ -1,7 +1,6 @@
 package tablut;
 
 
-import org.junit.Assert;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import ucb.junit.textui;
@@ -25,7 +24,7 @@ public class UnitTest {
         b.makeMove(Move.mv("a4-c"));
         assertEquals(Piece.EMPTY, b.get(0, 3));
         assertEquals(Piece.BLACK, b.get(2, 3));
-        assertEquals(Piece.WHITE, b.turn());;
+        assertEquals(Piece.WHITE, b.turn());
     }
 
     @Test

@@ -2,8 +2,11 @@ package tablut;
 
 
 
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Formatter;
+import java.util.List;
 import static tablut.Piece.*;
 import static tablut.Square.*;
 import static tablut.Move.mv;
@@ -55,7 +58,7 @@ class Board {
             return;
         }
         init();
-        for (int i = 0; i < NUM_SQUARES; i ++) {
+        for (int i = 0; i < NUM_SQUARES; i++) {
             Piece mp = model.get(sq(i));
             _position.put(sq(i), mp);
         }
@@ -86,7 +89,7 @@ class Board {
         recordPosition();
     }
 
-    /** Set the move limit to LIM.  It is an error if 2*LIM <= moveCount(). */
+    /** Set the move limit to LIM.  It is an error if 2*N <= moveCount(). */
     void setMoveLimit(int n) {
         if (2 * n <= moveCount()) {
             throw Utils.error("movecount already reached");
@@ -225,7 +228,9 @@ class Board {
             return false;
         } else if (!isUnblockedMove(from, to)) {
             return false;
-        } else return to != THRONE || get(from) == KING;
+        } else {
+            return to != THRONE || get(from) == KING;
+        }
     }
 
     /** Return true iff MOVE is a legal move in the current
@@ -301,9 +306,7 @@ class Board {
                             } else {
                                 Square dia1 = sq1.diag1(sq0);
                                 Square dia2 = sq1.diag2(sq0);
-                                Piece d1 = get(dia1);
-                                Piece d2 = get(dia2);
-                                if (d1 == BLACK && d2 == BLACK) {
+                                if (get(dia1) == BLACK && get(dia2) == BLACK) {
                                     if (get(dia1.diag1(sq0)) == BLACK
                                             || get(dia1.diag2(sq0)) == BLACK) {
                                         put(EMPTY, sq1);
@@ -318,11 +321,9 @@ class Board {
                     } else {
                         Square dia1 = sq0.diag1(sq1);
                         Square dia2 = sq0.diag2(sq1);
-                        Piece d1 = get(dia1);
-                        Piece d2 = get(dia2);
-                        if (d1 != EMPTY && d2 != EMPTY) {
-                            if (d1.side() != p1.side()
-                                    && d2.side() != p1.side()) {
+                        if (get(dia1) != EMPTY && get(dia2) != EMPTY) {
+                            if (get(dia1).side() != p1.side()
+                                    && get(dia2).side() != p1.side()) {
                                 if (p2 == EMPTY) {
                                     put(EMPTY, sq1);
                                 }
@@ -334,20 +335,15 @@ class Board {
                 if (p0 == BLACK && p2 == BLACK) {
                     Square d1 = sq0.diag1(THRONE);
                     Square d2 = sq0.diag2(THRONE);
-                    Piece pd1 = get(d1);
-                    Piece pd2 = get(d2);
-                    if (pd1 == BLACK && pd2 == BLACK) {
+                    if (get(d1) == BLACK && get(d2) == BLACK) {
                         put(EMPTY, sq1);
                         _winner = BLACK;
                     }
                 }
-            } else {
-                if (p0.side() != p1.side()) {
-                    put(EMPTY, sq1);
-                }
+            } else if (p0.side() != p1.side()) {
+                put(EMPTY, sq1);
             }
         }
-
     }
 
     /** Undo one move.  Has no effect on the initial board. */
@@ -367,7 +363,7 @@ class Board {
      *  unless it is a repeated position or we are at the first move. */
     private void undoPosition() {
         if (_moveCount > 0) {
-            _pastPositions.remove(_pastPositions.size() -1);
+            _pastPositions.remove(_pastPositions.size() - 1);
         }
         _repeated = false;
     }
@@ -388,7 +384,8 @@ class Board {
             SqList[] sl = ROOK_SQUARES[s.index()];
             for (SqList l : sl) {
                 for (Square sq : l) {
-                    if (isUnblockedMove(s, sq) && (sq != THRONE || get(s) == KING)) {
+                    if (isUnblockedMove(s, sq) && (sq != THRONE
+                            || get(s) == KING)) {
                         moves.add(mv(s, sq));
                     }
                 }
@@ -473,7 +470,8 @@ class Board {
     private int _movelimit;
 
     /** All my past positions. */
-    private ArrayList<HashMap<Square, Piece>> _pastPositions = new ArrayList<>();
+    private ArrayList<HashMap<Square, Piece>> _pastPositions
+            = new ArrayList<>();
 
 
 }

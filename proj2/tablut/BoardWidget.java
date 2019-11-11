@@ -9,12 +9,12 @@ import java.awt.Graphics2D;
 import java.awt.Font;
 import java.awt.event.MouseEvent;
 
-import static tablut.Piece.*;
+
 import static tablut.Square.sq;
-import static tablut.Move.mv;
+
 
 /** A widget that displays a Tablut game.
- *  @author
+ *  @author Sabrina Xia
  */
 class BoardWidget extends Pad {
 

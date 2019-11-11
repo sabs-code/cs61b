@@ -4,10 +4,8 @@ import java.util.List;
 
 import static java.lang.Math.*;
 
-import static tablut.Square.NUM_SQUARES;
-import static tablut.Square.sq;
-import static tablut.Board.THRONE;
 import static tablut.Piece.*;
+import static tablut.Square.*;
 
 /** A Player that automatically generates moves.
  *  @author Sabrina Xia
@@ -57,9 +55,11 @@ class AI extends Player {
         Board b = new Board(board());
         _lastFoundMove = null;
         if (_myPiece == BLACK) {
-            findMove(b, maxDepth(b), true, -1, Integer.MIN_VALUE, Integer.MAX_VALUE);
+            findMove(b, maxDepth(b), true, -1, Integer.MIN_VALUE,
+                    Integer.MAX_VALUE);
         } else {
-            findMove(b, maxDepth(b), true, 1, Integer.MIN_VALUE, Integer.MAX_VALUE);
+            findMove(b, maxDepth(b), true, 1, Integer.MIN_VALUE,
+                    Integer.MAX_VALUE);
         }
         return _lastFoundMove;
     }
@@ -142,18 +142,17 @@ class AI extends Player {
             return WINNING_VALUE;
         } else if (!board.hasMove(WHITE)) {
             return -1 * WINNING_VALUE;
-        }
-        else {
+        } else {
             Square kingSq = board.kingPosition();
-            if (emptyCol(board, kingSq) || emptyRow(board, kingSq)) {
+            int kScore = 1000;
+            kScore *= (int) Math.pow(kingSq.col() - 4, 2)
+                    + (int) Math.pow(kingSq.row() - 4, 2) + 1;
+            if (emptyCol(board, kingSq) == 0 || emptyRow(board, kingSq) == 0) {
                 return WILL_WIN_VALUE;
+            } else {
+                kScore -= emptyCol(board, kingSq) * 2;
+                kScore -= emptyRow(board, kingSq) * 2;
             }
-            int kScore;
-            kScore = (int) Math.pow(kingSq.col() - 4, 2) + (int) Math.pow(kingSq.row() - 4, 2);
-            if (halfEmptyCol(board, kingSq) || halfEmptyRow(board, kingSq)) {
-                kScore += 10;
-            }
-            kScore *= 10;
             int white = 0;
             int black = 0;
             int blackScore = 0;
@@ -162,83 +161,42 @@ class AI extends Player {
                     white += 1;
                 } else if (board.get(sq(i)) == BLACK) {
                     black += 1;
-                    if (sq(i).adjacent(kingSq)) {
-                        black += 20;
-                        kScore -= 2;
-                    }
-                    int k = Math.abs(sq(i).col() - kingSq.col()) + Math.abs(sq(i).row() - kingSq.row());
+                    int k = Math.abs(sq(i).col() - kingSq.col())
+                            + Math.abs(sq(i).row() - kingSq.row());
                     blackScore += k;
                 }
             }
-            return kScore + 5 * white - 5 * black + blackScore;
+            return 100 * kScore + 10 * white - 10 * black + 100 * blackScore;
         }
     }
 
-    /** Return true if SQ is the only occupied square in its row.*/
-    boolean emptyCol(Board b, Square sq) {
-        for (int i = 0; i < 9; i ++) {
+    /** Return number of occupied squares in SQ's col in B.*/
+    int emptyCol(Board b, Square sq) {
+        int result = 0;
+        for (int i = 0; i < 9; i++) {
             if (i == sq.row()) {
                 continue;
             } else {
                 if (b.get(sq(sq.col(), i)) != EMPTY) {
-                    return false;
+                    result += 1;
                 }
             }
         }
-        return true;
+        return result;
     }
 
-    /** Return true if SQ is the only occupied square in its col.*/
-    boolean emptyRow(Board b, Square sq) {
-        for (int i = 0; i < 9; i ++) {
+    /** Return number of occupied squares in SQ's col in B.*/
+    int emptyRow(Board b, Square sq) {
+        int result = 0;
+        for (int i = 0; i < 9; i++) {
             if (i == sq.col()) {
                 continue;
             } else {
                 if (b.get(sq(i, sq.row())) != EMPTY) {
-                    return false;
+                    result += 1;
                 }
             }
         }
-        return true;
-    }
-
-    /** Return true if one side of SQ's col is empty.*/
-    boolean halfEmptyCol(Board b, Square sq) {
-        boolean side1, side2;
-        side1 = side2 = true;
-        for (int i = 0; i < sq.row(); i++) {
-            if (b.get(sq(sq.col(), i)) != EMPTY) {
-                side1 = false;
-            }
-        }
-        for (int i = 8; i > sq.row(); i--) {
-            if (b.get(sq(sq.col(), i)) != EMPTY) {
-                side2= false;
-            }
-        }
-        if (side1 || side2) {
-            return true;
-        }
-        return false;
-    }
-
-    /** Return true if one side of SQ's row is empty.*/
-    boolean halfEmptyRow(Board b, Square sq) {
-        boolean side1, side2;
-        side1 = side2 = true;
-        for (int i = 0; i < sq.col(); i++) {
-            if (b.get(sq(i, sq.row())) != EMPTY) {
-                side1 = false;
-            }
-        }
-        for (int i = 8; i > sq.col(); i--) {
-            if (b.get(sq(i, sq.row())) != EMPTY) {
-                side2 = false;
-            }
-        }
-        if (side1 || side2) {
-            return true;
-        }
-        return false;
+        return result;
     }
 }

@@ -12,7 +12,8 @@ import static tablut.Square.*;
 import static tablut.Piece.*;
 
 /** The input/output and GUI controller for play of Tablut.
- *  @author */
+ *  @author Sabrina Xia
+ *  */
 final class Controller {
 
     /** Controller for one or more games of Tablut, using
