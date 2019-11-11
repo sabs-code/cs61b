@@ -58,7 +58,7 @@ class Board {
             return;
         }
         init();
-        for (int i = 0; i < SIZE * SIZE - 1; i ++) {
+        for (int i = 0; i < NUM_SQUARES; i ++) {
             Piece mp = model.get(sq(i));
             _position.put(sq(i), mp);
         }
@@ -72,7 +72,7 @@ class Board {
     /** Clears the board to the initial position. */
     void init() {
         _position = new HashMap<>();
-        for (int i = SIZE * SIZE - 1; i >= 0; i--) {
+        for (int i = 0; i < NUM_SQUARES; i++) {
             _position.put(sq(i), EMPTY);
         }
         for (int i = 0; i < INITIAL_ATTACKERS.length; i++) {
@@ -116,7 +116,7 @@ class Board {
     /** Record current position. */
     void recordPosition() {
         HashMap<Square, Piece> curr = new HashMap<>();
-        for (int i = 0; i < SIZE * SIZE; i++) {
+        for (int i = 0; i < NUM_SQUARES; i++) {
             curr.put(sq(i), get(sq(i)));
         }
         _pastPositions.add(curr);
@@ -140,7 +140,7 @@ class Board {
 
     /** Return location of the king. */
     Square kingPosition() {
-        for (int i = 0; i < _position.size(); i++) {
+        for (int i = 0; i < NUM_SQUARES; i++) {
             if (get(sq(i)) == KING) {
                 return sq(i);
             }
@@ -362,6 +362,7 @@ class Board {
             _position.putAll(last);
             _turn = _turn.opponent();
             _winner = null;
+            _moveCount -= 1;
         }
     }
 

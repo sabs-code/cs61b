@@ -45,11 +45,6 @@ public class UnitTest {
         assertTrue(b.isLegal(Move.mv("h5-6")));
     }
 
-    @Test
-    public void testlegalMoves() {
-        Board b = new Board();
-        assertEquals(10, b.legalMoves(Piece.BLACK).size());
-    }
 }
 
 

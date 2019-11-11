@@ -43,13 +43,7 @@ class AI extends Player {
     String myMove() {
         Move m = findMove();
         _controller.reportMove(m);
-        String s;
-        if (m.from().col() == m.to().col()) {
-            s = String.format("%s-%c", m.from(), (char) m.to().row() + '1');
-        } else {
-            s = String.format("%s-%c", m.from(), (char) m.to().col() + 'a');
-        }
-        return s;
+        return m.toString();
     }
 
     @Override
@@ -157,8 +151,9 @@ class AI extends Player {
             int kScore;
             kScore = (int) Math.pow(kingSq.col() - 4, 2) + (int) Math.pow(kingSq.row() - 4, 2);
             if (halfEmptyCol(board, kingSq) || halfEmptyRow(board, kingSq)) {
-                kScore += 100;
+                kScore += 10;
             }
+            kScore *= 10;
             int white = 0;
             int black = 0;
             int blackScore = 0;
@@ -169,12 +164,13 @@ class AI extends Player {
                     black += 1;
                     if (sq(i).adjacent(kingSq)) {
                         black += 20;
+                        kScore -= 2;
                     }
                     int k = Math.abs(sq(i).col() - kingSq.col()) + Math.abs(sq(i).row() - kingSq.row());
                     blackScore += k;
                 }
             }
-            return 10 * kScore + white - black + blackScore;
+            return kScore + 5 * white - 5 * black + blackScore;
         }
     }
 
