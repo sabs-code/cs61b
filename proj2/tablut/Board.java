@@ -66,6 +66,7 @@ class Board {
         _turn = model.turn();
         _winner = model.winner();
         _repeated = model._repeated;
+        _pastPositions = model._pastPositions;
     }
 
     /** Clears the board to the initial position. */
@@ -382,15 +383,14 @@ class Board {
     /** Return a new mutable list of all legal moves on the current board for
      *  SIDE (ignoring whose turn it is at the moment). */
     List<Move> legalMoves(Piece side) {
+        assert side != EMPTY;
         ArrayList<Move> moves = new ArrayList<>();
         HashSet<Square> pieces = pieceLocations(side);
-        Iterator<Square> iter = pieces.iterator();
-        while (iter.hasNext()) {
-            Square s = iter.next();
+        for (Square s : pieces) {
             SqList[] sl = ROOK_SQUARES[s.index()];
             for (SqList l : sl) {
                 for (Square sq : l) {
-                    if (isLegal(s, sq)) {
+                    if (isUnblockedMove(s, sq) && (sq != THRONE || get(s) == KING)) {
                         moves.add(mv(s, sq));
                     }
                 }
