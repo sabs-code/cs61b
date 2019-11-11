@@ -151,23 +151,30 @@ class AI extends Player {
         }
         else {
             Square kingSq = board.kingPosition();
+            if (emptyCol(board, kingSq) || emptyRow(board, kingSq)) {
+                return WILL_WIN_VALUE;
+            }
             int kScore;
             kScore = (int) Math.pow(kingSq.col() - 4, 2) + (int) Math.pow(kingSq.row() - 4, 2);
-            if (emptyCol(board, kingSq) || emptyRow(board, kingSq)) {
-                kScore *= 5;
-            } else if (halfEmptyCol(board, kingSq) || halfEmptyRow(board, kingSq)) {
-                kScore *= 3;
+            if (halfEmptyCol(board, kingSq) || halfEmptyRow(board, kingSq)) {
+                kScore += 100;
             }
             int white = 0;
             int black = 0;
+            int blackScore = 0;
             for (int i = 0; i < NUM_SQUARES; i++) {
                 if (board.get(sq(i)) == WHITE) {
                     white += 1;
                 } else if (board.get(sq(i)) == BLACK) {
                     black += 1;
+                    if (sq(i).adjacent(kingSq)) {
+                        black += 20;
+                    }
+                    int k = Math.abs(sq(i).col() - kingSq.col()) + Math.abs(sq(i).row() - kingSq.row());
+                    blackScore += k;
                 }
             }
-            return kScore + white - black;
+            return 10 * kScore + white - black + blackScore;
         }
     }
 
