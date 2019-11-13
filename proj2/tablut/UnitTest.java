@@ -41,6 +41,21 @@ public class UnitTest {
         assertTrue(b.isLegal(Move.mv("a4-d")));
         assertFalse(b.isLegal(Move.mv("a4-f")));
         assertTrue(b.isLegal(Move.mv("h5-6")));
+        assertTrue(Square.exists(0, 0));
+    }
+
+    @Test
+    public void testundo() {
+        Board b = new Board();
+        b.makeMove(Move.mv("d1-2"));
+        b.makeMove(Move.mv("e6-f"));
+        b.makeMove(Move.mv("a6-e"));
+        b.undo();
+        b.undo();
+        b.undo();
+        assertEquals(0, b.moveCount());
+        assertEquals(null, b.winner());
+        assertTrue(b.isLegal(Move.mv("d1-2")));
     }
 
 }

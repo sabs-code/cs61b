@@ -246,25 +246,25 @@ class Board {
         put(EMPTY, from);
         if (exists(to.col(), to.row() + 2)) {
             Square s1 = sq(to.col(), to.row() + 2);
-            if (get(s1).opponent() == get(to).opponent() || s1 == THRONE) {
+            if (get(s1).side() == get(to).side() || s1 == THRONE) {
                 capture(to, s1);
             }
         }
         if (exists(to.col(), to.row() - 2)) {
             Square s2 = sq(to.col(), to.row() - 2);
-            if (get(s2).opponent() == get(to).opponent() || s2 == THRONE) {
+            if (get(s2).side() == get(to).side() || s2 == THRONE) {
                 capture(to, s2);
             }
         }
         if (exists(to.col() + 2, to.row())) {
             Square s3 = sq(to.col() + 2, to.row());
-            if (get(s3).opponent() == get(to).opponent() || s3 == THRONE) {
+            if (get(s3).side() == get(to).side() || s3 == THRONE) {
                 capture(to, s3);
             }
         }
         if (exists(to.col() - 2, to.row())) {
             Square s4 = sq(to.col() - 2, to.row());
-            if (get(s4).opponent() == get(to).opponent() || s4 == THRONE) {
+            if (get(s4).side() == get(to).side() || s4 == THRONE) {
                 capture(to, s4);
             }
         }
@@ -293,40 +293,37 @@ class Board {
         Piece p2 = get(sq2);
         Square sq1 = sq0.between(sq2);
         Piece p1 = get(sq1);
-        if (p1 != EMPTY) {
+        if (p1 != EMPTY && p0.side() != p1.side()) {
             if (sq1 == NTHRONE || sq1 == WTHRONE || sq1 == ETHRONE
                     || sq1 == STHRONE) {
-                if (p0.side() != p1.side()) {
-                    if (p1 != KING) {
-                        if (sq0 == THRONE) {
-                            if (p0 == EMPTY) {
-                                put(EMPTY, sq1);
-                            } else if (p1 == BLACK) {
-                                put(EMPTY, sq1);
-                            } else {
-                                Square dia1 = sq1.diag1(sq0);
-                                Square dia2 = sq1.diag2(sq0);
-                                if (get(dia1) == BLACK && get(dia2) == BLACK) {
-                                    if (get(dia1.diag1(sq0)) == BLACK
-                                            || get(dia1.diag2(sq0)) == BLACK) {
-                                        put(EMPTY, sq1);
-                                    }
-                                }
-                            }
+                if (p1 != KING) {
+                    if (sq2 == THRONE) {
+                        if (p2 == EMPTY) {
+                            put(EMPTY, sq1);
+                        } else if (p1 == BLACK) {
+                            put(EMPTY, sq1);
                         } else {
-                            if (p0.side() == p2.side()) {
-                                put(EMPTY, sq1);
+                            Square dia1 = sq1.diag1(sq2);
+                            Square dia2 = sq1.diag2(sq2);
+                            if (get(dia1) == BLACK && get(dia2) == BLACK) {
+                                if (get(dia1.diag1(sq2)) == BLACK
+                                        || get(dia1.diag2(sq2)) == BLACK) {
+                                    put(EMPTY, sq1);
+                                }
                             }
                         }
                     } else {
-                        Square dia1 = sq0.diag1(sq1);
-                        Square dia2 = sq0.diag2(sq1);
-                        if (get(dia1) != EMPTY && get(dia2) != EMPTY) {
-                            if (get(dia1).side() != p1.side()
-                                    && get(dia2).side() != p1.side()) {
-                                if (p2 == EMPTY) {
-                                    put(EMPTY, sq1);
-                                }
+                        put(EMPTY, sq1);
+                    }
+                } else {
+                    Square dia1 = sq0.diag1(sq1);
+                    Square dia2 = sq0.diag2(sq1);
+                    if (get(dia1) != EMPTY && get(dia2) != EMPTY) {
+                        if (get(dia1).side() != p1.side()
+                                && get(dia2).side() != p1.side()) {
+                            if (p2 == EMPTY) {
+                                put(EMPTY, sq1);
+                                _winner = BLACK;
                             }
                         }
                     }
@@ -340,11 +337,12 @@ class Board {
                         _winner = BLACK;
                     }
                 }
-            } else if (p0.side() != p1.side()) {
+            } else {
                 put(EMPTY, sq1);
             }
         }
     }
+
 
     /** Undo one move.  Has no effect on the initial board. */
     void undo() {
@@ -381,13 +379,32 @@ class Board {
         ArrayList<Move> moves = new ArrayList<>();
         HashSet<Square> pieces = pieceLocations(side);
         for (Square s : pieces) {
-            SqList[] sl = ROOK_SQUARES[s.index()];
-            for (SqList l : sl) {
-                for (Square sq : l) {
-                    if (isUnblockedMove(s, sq) && (sq != THRONE
-                            || get(s) == KING)) {
-                        moves.add(mv(s, sq));
-                    }
+            for (int i = s.col() + 1; i < 9; i++) {
+                if (get(sq(i, s.row())) != EMPTY) {
+                    break;
+                } else if (sq(i, s.row()) != THRONE || get(s) == KING) {
+                        moves.add(mv(s, sq(i, s.row())));
+                }
+            }
+            for (int i = s.col() - 1; i >= 0; i--) {
+                if (get(sq(i, s.row())) != EMPTY) {
+                    break;
+                } else if (sq(i, s.row()) != THRONE || get(s) == KING) {
+                    moves.add(mv(s, sq(i, s.row())));
+                }
+            }
+            for (int i = s.row() + 1; i < 9; i++) {
+                if (get(sq(s.col(), i)) != EMPTY) {
+                    break;
+                } else if (sq(s.col(), i) != THRONE || get(s) == KING) {
+                    moves.add(mv(s, sq(s.col(), i)));
+                }
+            }
+            for (int i = s.row() - 1; i >= 0; i--) {
+                if (get(sq(s.col(), i)) != EMPTY) {
+                    break;
+                } else if (sq(s.col(), i) != THRONE || get(s) == KING) {
+                    moves.add(mv(s, sq(s.col(), i)));
                 }
             }
         }
@@ -472,6 +489,5 @@ class Board {
     /** All my past positions. */
     private ArrayList<HashMap<Square, Piece>> _pastPositions
             = new ArrayList<>();
-
 
 }

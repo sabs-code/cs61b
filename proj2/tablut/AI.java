@@ -77,13 +77,16 @@ class AI extends Player {
     private int findMove(Board board, int depth, boolean saveMove,
                          int sense, int alpha, int beta) {
         if (depth == 0 || board.winner() != null) {
-            return staticScore(board);
+            if (_myPiece == BLACK) {
+                return staticScore(board) - depth;
+            }
+            return staticScore(board) + depth;
         } else {
             int value;
             if (sense == 1) {
                 List<Move> legalMoves = board.legalMoves(WHITE);
                 if (legalMoves.size() == 0) {
-                    return staticScore(board);
+                    return -1 * WINNING_VALUE;
                 }
                 for (Move m : legalMoves) {
                     board.makeMove(m);
@@ -91,10 +94,10 @@ class AI extends Player {
                             alpha, beta);
                     board.undo();
                     if (value > alpha) {
+                        alpha = value;
                         if (saveMove) {
                             _lastFoundMove = m;
                         }
-                        alpha = value;
                         if (alpha >= beta) {
                             break;
                         }
@@ -104,7 +107,7 @@ class AI extends Player {
             } else {
                 List<Move> legalMoves = board.legalMoves(BLACK);
                 if (legalMoves.size() == 0) {
-                    return staticScore(board);
+                    return WINNING_VALUE;
                 }
                 for (Move m : legalMoves) {
                     board.makeMove(m);
@@ -112,10 +115,10 @@ class AI extends Player {
                             alpha, beta);
                     board.undo();
                     if (value < beta) {
+                        beta = value;
                         if (saveMove) {
                             _lastFoundMove = m;
                         }
-                        beta = value;
                         if (alpha >= beta) {
                             break;
                         }
@@ -129,7 +132,11 @@ class AI extends Player {
     /** Return a heuristically determined maximum search depth
      *  based on characteristics of BOARD. */
     private static int maxDepth(Board board) {
-        return 4;
+        if (board.moveCount() <= 6) {
+            return 3;
+        } else {
+            return 4;
+        }
     }
 
     /** Return a heuristic value for BOARD. */
@@ -138,46 +145,79 @@ class AI extends Player {
             return WINNING_VALUE;
         } else if (board.winner() == BLACK) {
             return -1 * WINNING_VALUE;
-        } else if (!board.hasMove(BLACK)) {
-            return WINNING_VALUE;
-        } else if (!board.hasMove(WHITE)) {
-            return -1 * WINNING_VALUE;
         } else {
             Square kingSq = board.kingPosition();
+            int helper1 = emptyCol(board, kingSq);
+            int helper2 = emptyRow(board, kingSq);
             int kScore = 1000;
-            kScore *= (int) Math.pow(kingSq.col() - 4, 2)
-                    + (int) Math.pow(kingSq.row() - 4, 2) + 1;
-            if (emptyCol(board, kingSq) == 0 || emptyRow(board, kingSq) == 0) {
+            if (helper1 == 8 || helper2 == 8) {
                 return WILL_WIN_VALUE;
-            } else {
-                kScore -= emptyCol(board, kingSq) * 2;
-                kScore -= emptyRow(board, kingSq) * 2;
             }
+            kScore += helper1 * 2;
+            kScore += helper2 * 2;
+            kScore *= Math.abs(kingSq.col() - 4)
+                    + Math.abs(kingSq.row() - 4) + 1;
             int white = 0;
             int black = 0;
-            int blackScore = 0;
             for (int i = 0; i < NUM_SQUARES; i++) {
                 if (board.get(sq(i)) == WHITE) {
                     white += 1;
                 } else if (board.get(sq(i)) == BLACK) {
                     black += 1;
-                    int k = Math.abs(sq(i).col() - kingSq.col())
-                            + Math.abs(sq(i).row() - kingSq.row());
-                    blackScore += k;
                 }
             }
-            return 100 * kScore + 10 * white - 10 * black + 100 * blackScore;
+            return kScore + 3 * white - 3 * black;
         }
     }
 
-    /** Return number of occupied squares in SQ's col in B.*/
-    int emptyCol(Board b, Square sq) {
+    /** Return number of black pieces in SQ's col in B.*/
+    int emptyCol(Board b, Square s) {
+        int result = 0;
+        for (int i = s.col() + 1; i < 9; i++) {
+            if (b.get(sq(i, s.row())) != EMPTY) {
+                break;
+            } else {
+                result += 1;
+            }
+        }
+        for (int i = s.col() - 1; i >= 0; i--) {
+            if (b.get(sq(i, s.row())) != EMPTY) {
+                break;
+            } else {
+                result += 1;
+            }
+        }
+        return result;
+    }
+
+    /** Return number of black pieces in SQ's col in B.*/
+    int emptyRow(Board b, Square s) {
+        int result = 0;
+        for (int i = s.row() + 1; i < 9; i++) {
+            if (b.get(sq(s.col(), i)) != EMPTY) {
+                break;
+            } else {
+                result += 1;
+            }
+        }
+        for (int i = s.row() - 1; i >= 0; i--) {
+            if (b.get(sq(s.col(), i)) != EMPTY) {
+                break;
+            } else {
+                result += 1;
+            }
+        }
+        return result;
+    }
+
+    /** Return number of black pieces in SQ's col in B.*/
+    int blackCol(Board b, Square sq) {
         int result = 0;
         for (int i = 0; i < 9; i++) {
             if (i == sq.row()) {
                 continue;
             } else {
-                if (b.get(sq(sq.col(), i)) != EMPTY) {
+                if (b.get(sq(sq.col(), i)) == BLACK) {
                     result += 1;
                 }
             }
@@ -185,14 +225,15 @@ class AI extends Player {
         return result;
     }
 
-    /** Return number of occupied squares in SQ's col in B.*/
-    int emptyRow(Board b, Square sq) {
+    /** Return number of black pieces in SQ's col in B.*/
+    int blackRow(Board b, Square sq) {
         int result = 0;
+        int black = 0;
         for (int i = 0; i < 9; i++) {
             if (i == sq.col()) {
                 continue;
             } else {
-                if (b.get(sq(i, sq.row())) != EMPTY) {
+                if (b.get(sq(i, sq.row())) == BLACK) {
                     result += 1;
                 }
             }
