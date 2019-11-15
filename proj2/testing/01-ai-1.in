@@ -1,6 +1,7 @@
 #* java -ea tablut.Main
 # Check AI.
 manual white
+manual black
 a6-b
 e6-f
 b6-e
