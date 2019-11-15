@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /** The GUI controller for a Tablut board and buttons.
- *  @author
+ *  @author Sabrina Xia
  */
 class GUI extends TopLevel implements View, Reporter {
 

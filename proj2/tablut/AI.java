@@ -132,11 +132,7 @@ class AI extends Player {
     /** Return a heuristically determined maximum search depth
      *  based on characteristics of BOARD. */
     private static int maxDepth(Board board) {
-        if (board.moveCount() <= 6) {
-            return 3;
-        } else {
-            return 4;
-        }
+        return 4;
     }
 
     /** Return a heuristic value for BOARD. */
@@ -149,13 +145,10 @@ class AI extends Player {
             Square kingSq = board.kingPosition();
             int helper1 = emptyCol(board, kingSq);
             int helper2 = emptyRow(board, kingSq);
-            int kScore = 1000;
-            if (helper1 == 8 || helper2 == 8) {
-                return WILL_WIN_VALUE;
-            }
+            int kScore = 10;
             kScore += helper1 * 2;
             kScore += helper2 * 2;
-            kScore *= Math.abs(kingSq.col() - 4)
+            kScore += Math.abs(kingSq.col() - 4)
                     + Math.abs(kingSq.row() - 4) + 1;
             int white = 0;
             int black = 0;
@@ -166,11 +159,11 @@ class AI extends Player {
                     black += 1;
                 }
             }
-            return kScore + 3 * white - 3 * black;
+            return kScore + 5 * white - 5 * black;
         }
     }
 
-    /** Return number of black pieces in SQ's col in B.*/
+    /** Return number of possible move places in S's col in B.*/
     int emptyCol(Board b, Square s) {
         int result = 0;
         for (int i = s.col() + 1; i < 9; i++) {
@@ -190,7 +183,7 @@ class AI extends Player {
         return result;
     }
 
-    /** Return number of black pieces in SQ's col in B.*/
+    /** Return number of possible move places in S's col in B.*/
     int emptyRow(Board b, Square s) {
         int result = 0;
         for (int i = s.row() + 1; i < 9; i++) {
@@ -210,34 +203,50 @@ class AI extends Player {
         return result;
     }
 
-    /** Return number of black pieces in SQ's col in B.*/
-    int blackCol(Board b, Square sq) {
-        int result = 0;
-        for (int i = 0; i < 9; i++) {
-            if (i == sq.row()) {
-                continue;
-            } else {
-                if (b.get(sq(sq.col(), i)) == BLACK) {
+    /** Return number of directions that have black pieces block K in B. */
+    int surround(Board b, Square s) {
+        int result = 1;
+        for (int i = s.row() + 1; i < 9; i++) {
+            Piece p = b.get(sq(s.col(), i));
+            if (p != EMPTY) {
+                if (p == BLACK) {
                     result += 1;
+                    break;
                 }
+                break;
+            }
+        }
+        for (int i = s.row() - 1; i >= 0; i--) {
+            Piece p = b.get(sq(s.col(), i));
+            if (p != EMPTY) {
+                if (p == BLACK) {
+                    result += 1;
+                    break;
+                }
+                break;
+            }
+        }
+        for (int i = s.col() + 1; i < 9; i++) {
+            Piece p = b.get(sq(i, s.row()));
+            if (p != EMPTY) {
+                if (p == BLACK) {
+                    result += 1;
+                    break;
+                }
+                break;
+            }
+        }
+        for (int i = s.col() - 1; i >= 0; i--) {
+            Piece p = b.get(sq(i, s.row()));
+            if (p != EMPTY) {
+                if (p == BLACK) {
+                    result += 1;
+                    break;
+                }
+                break;
             }
         }
         return result;
     }
 
-    /** Return number of black pieces in SQ's col in B.*/
-    int blackRow(Board b, Square sq) {
-        int result = 0;
-        int black = 0;
-        for (int i = 0; i < 9; i++) {
-            if (i == sq.col()) {
-                continue;
-            } else {
-                if (b.get(sq(i, sq.row())) == BLACK) {
-                    result += 1;
-                }
-            }
-        }
-        return result;
-    }
 }

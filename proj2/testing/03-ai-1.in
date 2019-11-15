@@ -1,0 +1,114 @@
+#* java -ea tablut.Main
+# Check AI.
+#*move
+manual white
+auto black
+dump
+manual black
+auto white
+dump
+manual white
+auto black
+dump
+manual black
+auto white
+dump
+manual white
+auto black
+dump
+manual black
+auto white
+dump
+manual white
+auto black
+dump
+manual black
+auto white
+dump
+manual white
+auto black
+dump
+manual black
+auto white
+dump
+manual white
+auto black
+dump
+manual black
+auto white
+dump
+manual white
+auto black
+dump
+manual black
+auto white
+dump
+manual white
+auto black
+dump
+manual black
+auto white
+dump
+manual white
+auto black
+dump
+manual black
+auto white
+dump
+manual white
+auto black
+dump
+manual black
+auto white
+dump
+manual white
+auto black
+dump
+manual black
+auto white
+dump
+manual white
+auto black
+dump
+manual black
+auto white
+dump
+manual white
+auto black
+dump
+manual black
+auto white
+dump
+manual white
+auto black
+dump
+manual black
+auto white
+dump
+manual white
+auto black
+dump
+manual black
+auto white
+dump
+manual white
+auto black
+dump
+manual black
+auto white
+dump
+manual white
+auto black
+dump
+manual black
+auto white
+dump
+manual white
+auto black
+dump
+manual black
+auto white
+dump
+manual white
+auto black
+dump

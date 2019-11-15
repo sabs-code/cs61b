@@ -1,5 +1,6 @@
 package tablut;
 
+import edu.neu.ccs.quick.QuickArrayList;
 import ucb.gui2.Pad;
 
 import java.util.concurrent.ArrayBlockingQueue;
@@ -10,6 +11,7 @@ import java.awt.Font;
 import java.awt.event.MouseEvent;
 
 
+import static tablut.Square.SQ;
 import static tablut.Square.sq;
 
 
@@ -69,14 +71,20 @@ class BoardWidget extends Pad {
         g.setColor(THRONE_COLOR);
         g.fillRect(cx(Board.THRONE), cy(Board.THRONE),
                    SQUARE_SIDE, SQUARE_SIDE);
-        // OTHER SQUARE COLORINGS?
+        g.setColor(ADJACENT_THRONE_COLOR);
+        g.fillRect(cx(Board.ETHRONE), cy(Board.ETHRONE),
+                SQUARE_SIDE, SQUARE_SIDE);
+        g.fillRect(cx(Board.WTHRONE), cy(Board.WTHRONE),
+                SQUARE_SIDE, SQUARE_SIDE);
+        g.fillRect(cx(Board.NTHRONE), cy(Board.NTHRONE),
+                SQUARE_SIDE, SQUARE_SIDE);
+        g.fillRect(cx(Board.STHRONE), cy(Board.STHRONE),
+                SQUARE_SIDE, SQUARE_SIDE);
         g.setColor(GRID_LINE_COLOR);
         for (int k = 0; k <= SIZE; k += 1) {
             g.drawLine(cx(0), cy(k - 1), cx(SIZE), cy(k - 1));
             g.drawLine(cx(k), cy(-1), cx(k), cy(SIZE - 1));
         }
-
-        // OTHER STUFF.
     }
 
     @Override
@@ -87,12 +95,21 @@ class BoardWidget extends Pad {
 
     /** Draw the contents of S on G. */
     private void drawPiece(Graphics2D g, Square s) {
-        // FIXME
+        if (_board.get(s).side() == Piece.WHITE) {
+            g.setColor(Color.WHITE);
+            g.fillOval(cx(s) + 3, cy(s) + 3, SQUARE_SIDE - 5, SQUARE_SIDE - 5);
+            g.setColor(Color.RED);
+            g.drawOval(cx(s) + 3, cy(s) + 3, SQUARE_SIDE - 5, SQUARE_SIDE - 5);
+        } else if (_board.get(s).side() == Piece.BLACK) {
+            g.setColor(Color.BLACK);
+            g.fillOval(cx(s) + 3, cy(s) + 3, SQUARE_SIDE - 5, SQUARE_SIDE - 5);
+            g.setColor(Color.RED);
+            g.drawOval(cx(s) + 3, cy(s) + 3, SQUARE_SIDE - 5, SQUARE_SIDE - 5);
+        }
     }
 
     /** Handle a click on S. */
     private void click(Square s) {
-        // FIXME
         repaint();
     }
 

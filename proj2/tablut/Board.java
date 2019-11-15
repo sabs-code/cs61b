@@ -67,6 +67,7 @@ class Board {
         _winner = model.winner();
         _repeated = model._repeated;
         _pastPositions = model._pastPositions;
+        _movelimit = model._movelimit;
     }
 
     /** Clears the board to the initial position. */
@@ -86,6 +87,7 @@ class Board {
         _turn = BLACK;
         _winner = null;
         _repeated = false;
+        _movelimit = 0;
         recordPosition();
     }
 
@@ -119,17 +121,18 @@ class Board {
         for (int i = 0; i < NUM_SQUARES; i++) {
             curr.put(sq(i), get(sq(i)));
         }
-        _pastPositions.add(curr);
+        _pastPositions.put(_moveCount, curr);
     }
 
     /** Record current position and set winner() next mover if the current
      *  position is a repeat. */
     private void checkRepeated() {
-        if (_pastPositions.contains(_position)) {
+        if (_pastPositions.containsValue(_position)) {
             _winner = _turn.opponent();
             _repeated = true;
+        } else {
+            recordPosition();
         }
-        recordPosition();
     }
 
     /** Return the number of moves since the initial position that have not been
@@ -268,6 +271,7 @@ class Board {
                 capture(to, s4);
             }
         }
+        _moveCount += 1;
         checkRepeated();
         if (!_repeated) {
             if (kingPosition() == null) {
@@ -276,7 +280,6 @@ class Board {
                 _winner = WHITE;
             }
         }
-        _moveCount += 1;
         _turn = _turn.opponent();
     }
 
@@ -302,29 +305,18 @@ class Board {
                             put(EMPTY, sq1);
                         } else if (p1 == BLACK) {
                             put(EMPTY, sq1);
-                        } else {
-                            Square dia1 = sq1.diag1(sq2);
-                            Square dia2 = sq1.diag2(sq2);
-                            if (get(dia1) == BLACK && get(dia2) == BLACK) {
-                                if (get(dia1.diag1(sq2)) == BLACK
-                                        || get(dia1.diag2(sq2)) == BLACK) {
-                                    put(EMPTY, sq1);
-                                }
-                            }
                         }
                     } else {
                         put(EMPTY, sq1);
                     }
                 } else {
-                    Square dia1 = sq0.diag1(sq1);
-                    Square dia2 = sq0.diag2(sq1);
-                    if (get(dia1) != EMPTY && get(dia2) != EMPTY) {
-                        if (get(dia1).side() != p1.side()
-                                && get(dia2).side() != p1.side()) {
-                            if (p2 == EMPTY) {
-                                put(EMPTY, sq1);
-                                _winner = BLACK;
-                            }
+                    Square dia1 = THRONE.diag1(sq1);
+                    Square dia2 = THRONE.diag2(sq1);
+                    if (get(dia1) == BLACK && get(dia2) == BLACK) {
+                        if (get(dia1.diag1(sq1)) == BLACK
+                                    || get(dia1.diag2(sq1)) == BLACK) {
+                            put(EMPTY, sq1);
+                            _winner = BLACK;
                         }
                     }
                 }
@@ -349,11 +341,10 @@ class Board {
         if (_moveCount > 0) {
             undoPosition();
             HashMap<Square, Piece> last;
-            last = _pastPositions.get(_pastPositions.size() - 1);
+            last = _pastPositions.get(_moveCount);
             _position.putAll(last);
             _turn = _turn.opponent();
             _winner = null;
-            _moveCount -= 1;
         }
     }
 
@@ -361,7 +352,8 @@ class Board {
      *  unless it is a repeated position or we are at the first move. */
     private void undoPosition() {
         if (_moveCount > 0) {
-            _pastPositions.remove(_pastPositions.size() - 1);
+            _pastPositions.remove(_moveCount);
+            _moveCount -= 1;
         }
         _repeated = false;
     }
@@ -383,28 +375,45 @@ class Board {
                 if (get(sq(i, s.row())) != EMPTY) {
                     break;
                 } else if (sq(i, s.row()) != THRONE || get(s) == KING) {
+                    if (get(s) == KING) {
+                        moves.add(0, mv(s, sq(i, s.row())));
+                    } else {
                         moves.add(mv(s, sq(i, s.row())));
+                    }
+
                 }
             }
             for (int i = s.col() - 1; i >= 0; i--) {
                 if (get(sq(i, s.row())) != EMPTY) {
                     break;
                 } else if (sq(i, s.row()) != THRONE || get(s) == KING) {
-                    moves.add(mv(s, sq(i, s.row())));
+                    if (get(s) == KING) {
+                        moves.add(0, mv(s, sq(i, s.row())));
+                    } else {
+                        moves.add(mv(s, sq(i, s.row())));
+                    }
                 }
             }
             for (int i = s.row() + 1; i < 9; i++) {
                 if (get(sq(s.col(), i)) != EMPTY) {
                     break;
                 } else if (sq(s.col(), i) != THRONE || get(s) == KING) {
-                    moves.add(mv(s, sq(s.col(), i)));
+                    if (get(s) == KING) {
+                        moves.add(0, mv(s, sq(s.col(), i)));
+                    } else {
+                        moves.add(mv(s, sq(s.col(), i)));
+                    }
                 }
             }
             for (int i = s.row() - 1; i >= 0; i--) {
                 if (get(sq(s.col(), i)) != EMPTY) {
                     break;
                 } else if (sq(s.col(), i) != THRONE || get(s) == KING) {
-                    moves.add(mv(s, sq(s.col(), i)));
+                    if (get(s) == KING) {
+                        moves.add(0, mv(s, sq(s.col(), i)));
+                    } else {
+                        moves.add(mv(s, sq(s.col(), i)));
+                    }
                 }
             }
         }
@@ -487,7 +496,7 @@ class Board {
     private int _movelimit;
 
     /** All my past positions. */
-    private ArrayList<HashMap<Square, Piece>> _pastPositions
-            = new ArrayList<>();
+    private HashMap<Integer, HashMap<Square, Piece>> _pastPositions
+            = new HashMap<>();
 
 }
