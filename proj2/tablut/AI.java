@@ -132,7 +132,7 @@ class AI extends Player {
     /** Return a heuristically determined maximum search depth
      *  based on characteristics of BOARD. */
     private static int maxDepth(Board board) {
-        if (board.moveCount() <= 8) {
+        if (board.moveCount() <= 6) {
             return 3;
         } else {
             return 4;
