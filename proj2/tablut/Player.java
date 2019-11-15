@@ -1,6 +1,5 @@
 package tablut;
 
-import static tablut.Utils.*;
 
 /** A generic Tablut Player.
  *  @author P. N. Hilfinger

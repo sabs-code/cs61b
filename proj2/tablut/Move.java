@@ -9,7 +9,6 @@ import static tablut.Square.sq;
 import static tablut.Square.NUM_SQUARES;
 import static tablut.Square.ROOK_SQUARES;
 import static tablut.Square.SQUARE_LIST;
-import static tablut.Utils.*;
 
 /** A move in the game of Tablut. As for Squares, Moves are immutable
  *  and unique: there is only one move object for each possible move

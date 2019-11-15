@@ -2,7 +2,6 @@ package tablut;
 
 import java.util.List;
 
-import static java.lang.Math.*;
 
 import static tablut.Piece.*;
 import static tablut.Square.*;
@@ -198,52 +197,6 @@ class AI extends Player {
                 break;
             } else {
                 result += 1;
-            }
-        }
-        return result;
-    }
-
-    /** Return number of directions that have black pieces block K in B. */
-    int surround(Board b, Square s) {
-        int result = 1;
-        for (int i = s.row() + 1; i < 9; i++) {
-            Piece p = b.get(sq(s.col(), i));
-            if (p != EMPTY) {
-                if (p == BLACK) {
-                    result += 1;
-                    break;
-                }
-                break;
-            }
-        }
-        for (int i = s.row() - 1; i >= 0; i--) {
-            Piece p = b.get(sq(s.col(), i));
-            if (p != EMPTY) {
-                if (p == BLACK) {
-                    result += 1;
-                    break;
-                }
-                break;
-            }
-        }
-        for (int i = s.col() + 1; i < 9; i++) {
-            Piece p = b.get(sq(i, s.row()));
-            if (p != EMPTY) {
-                if (p == BLACK) {
-                    result += 1;
-                    break;
-                }
-                break;
-            }
-        }
-        for (int i = s.col() - 1; i >= 0; i--) {
-            Piece p = b.get(sq(i, s.row()));
-            if (p != EMPTY) {
-                if (p == BLACK) {
-                    result += 1;
-                    break;
-                }
-                break;
             }
         }
         return result;

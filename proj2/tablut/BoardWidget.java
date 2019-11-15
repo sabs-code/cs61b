@@ -1,6 +1,5 @@
 package tablut;
 
-import edu.neu.ccs.quick.QuickArrayList;
 import ucb.gui2.Pad;
 
 import java.util.concurrent.ArrayBlockingQueue;
@@ -11,7 +10,6 @@ import java.awt.Font;
 import java.awt.event.MouseEvent;
 
 
-import static tablut.Square.SQ;
 import static tablut.Square.sq;
 
 
