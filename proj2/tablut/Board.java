@@ -380,7 +380,6 @@ class Board {
                     } else {
                         moves.add(mv(s, sq(i, s.row())));
                     }
-
                 }
             }
             for (int i = s.col() - 1; i >= 0; i--) {
