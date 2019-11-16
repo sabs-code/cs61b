@@ -36,6 +36,8 @@ class GUI extends TopLevel implements View, Reporter {
     GUI(String title) {
         super(title, true);
         addMenuButton("Game->Quit", this::quit);
+        addMenuButton("Game->new", this::newGame);
+        addMenuButton("Game->Undo", this::undo);
         _widget = new BoardWidget(_pendingCommands);
         add(_widget,
             new LayoutSpec("y", 1,
@@ -53,6 +55,15 @@ class GUI extends TopLevel implements View, Reporter {
         _pendingCommands.offer("quit");
     }
 
+    /** Response to "newGame" button click. */
+    private void newGame(String dummy) {
+        _pendingCommands.offer("new");
+    }
+
+    /** Response to "Undo" button click. */
+    private void undo(String dummy) {
+        _pendingCommands.offer("undo");
+    }
 
     /** Return the next command from our widget, waiting for it as necessary.
      *  The BoardWidget uses _pendingCommands to queue up moves that it

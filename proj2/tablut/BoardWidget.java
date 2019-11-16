@@ -60,6 +60,7 @@ class BoardWidget extends Pad {
         setMouseHandler("click", this::mouseClicked);
         setPreferredSize(BOARD_SIDE, BOARD_SIDE);
         _acceptingMoves = false;
+        _lastclick = null;
     }
 
     /** Draw the bare board G.  */
@@ -98,6 +99,10 @@ class BoardWidget extends Pad {
             g.fillOval(cx(s) + 3, cy(s) + 3, SQUARE_SIDE - 5, SQUARE_SIDE - 5);
             g.setColor(Color.RED);
             g.drawOval(cx(s) + 3, cy(s) + 3, SQUARE_SIDE - 5, SQUARE_SIDE - 5);
+            if (_board.get(s) == Piece.KING) {
+                g.setFont(KING_FONT);
+                g.drawString("K", cx(s.col()) + 8, cy(s.row() - 1) - 8);
+            }
         } else if (_board.get(s).side() == Piece.BLACK) {
             g.setColor(Color.BLACK);
             g.fillOval(cx(s) + 3, cy(s) + 3, SQUARE_SIDE - 5, SQUARE_SIDE - 5);
@@ -108,6 +113,13 @@ class BoardWidget extends Pad {
 
     /** Handle a click on S. */
     private void click(Square s) {
+        if (_lastclick != null) {
+            Move move = Move.mv(_lastclick, s);
+            _commands.add(move.toString());
+            _lastclick = null;
+        } else {
+            _lastclick = s;
+        }
         repaint();
     }
 
@@ -167,5 +179,8 @@ class BoardWidget extends Pad {
 
     /** True iff accepting moves from user. */
     private boolean _acceptingMoves;
+
+    /** Most recent click before this one. */
+    private Square _lastclick;
 
 }
