@@ -1,5 +1,0 @@
-#* java -ea tablut.Main
-# Check AI.
-auto white
-#*move
-#*remote move/win
