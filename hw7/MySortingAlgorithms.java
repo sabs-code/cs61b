@@ -1,4 +1,4 @@
-import java.util.Arrays;
+import java.util.*;
 
 /**
  * Class containing all the sorting algorithms from 61B to date.
@@ -38,7 +38,14 @@ public class MySortingAlgorithms {
     public static class InsertionSort implements SortingAlgorithm {
         @Override
         public void sort(int[] array, int k) {
-            // FIXME
+            for (int i = 1; i < k; i++) {
+                int curr = array[i];
+                int j = i - 1;
+                for (; j >= 0 && array[j] > curr; j--) {
+                    array[j + 1] = array[j];
+                }
+                array[j + 1] = curr;
+            }
         }
 
         @Override
@@ -56,7 +63,17 @@ public class MySortingAlgorithms {
     public static class SelectionSort implements SortingAlgorithm {
         @Override
         public void sort(int[] array, int k) {
-            // FIXME
+            for (int j = 0; j < k; j++) {
+                int min = j;
+                for (int i = j; i < k; i++) {
+                    if (array[i] < array[min]) {
+                        min = i;
+                    }
+                }
+                int temp = array[j];
+                array[j] = array[min];
+                array[min] = temp;
+            }
         }
 
         @Override
@@ -73,10 +90,46 @@ public class MySortingAlgorithms {
     public static class MergeSort implements SortingAlgorithm {
         @Override
         public void sort(int[] array, int k) {
-            // FIXME
+            int[] arr = new int[k];
+            System.arraycopy(array, 0, arr, 0, k);
+            if (k == 1) {
+            } else {
+                int middle = k / 2;
+                int[] first = new int[middle];
+                System.arraycopy(arr, 0, first, 0, middle);
+                int[] second = new int[arr.length - middle];
+                System.arraycopy(arr, middle, second, 0, second.length);
+                sort(first, middle);
+                sort(second, second.length);
+                merge(arr, first, second);
+            }
+            System.arraycopy(arr, 0, array, 0, k);
         }
 
-        // may want to add additional methods
+        public void merge(int[] array, int[] arr1, int[] arr2) {
+            int j, k, i;
+            i = j = k = 0;
+            while (j < arr1.length && k < arr2.length) {
+                if (arr1[j] < arr2[k]) {
+                    array[i] = arr1[j];
+                    j++;
+                } else {
+                    array[i] = arr2[k];
+                    k++;
+                }
+                i++;
+            }
+            while (j < arr1.length) {
+                array[i] = arr1[j];
+                i++;
+                j++;
+            }
+            while (k < arr2.length) {
+                array[i] = arr2[k];
+                i++;
+                k++;
+            }
+        }
 
         @Override
         public String toString() {
@@ -144,7 +197,34 @@ public class MySortingAlgorithms {
     public static class LSDSort implements SortingAlgorithm {
         @Override
         public void sort(int[] a, int k) {
-            // FIXME
+            int[] arr = new int[k];
+            System.arraycopy(a, 0, arr, 0, k);
+            Queue<Integer>[] bins =new Queue[10];
+            for (int i = 0; i < 10; i++) {
+                bins[i] = new ArrayDeque<>();
+            }
+            boolean stop = false;
+            int div = 1;
+            int temp;
+            while (!stop) {
+                stop = true;
+                for (int i : arr) {
+                    temp = i / div;
+                    bins[temp % 10].add(i);
+                    if (stop && temp > 0) {
+                        stop = false;
+                    }
+                }
+                int index= 0;
+                for (int i = 0; i < 10; i ++) {
+                    while (!bins[i].isEmpty()) {
+                        arr[index] = bins[i].remove();
+                        index += 1;
+                    }
+                }
+                div *= 10;
+            }
+            System.arraycopy(arr, 0, a, 0, k);
         }
 
         @Override
