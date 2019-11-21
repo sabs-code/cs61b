@@ -10,7 +10,7 @@ public class Sum {
         s.sort(B, B.length);
         int[] both = new int[A.length + B.length];
         System.arraycopy(A, 0, both, 0, A.length);
-        System.arraycopy(A, 0, both, A.length + 1, B.length);
+        System.arraycopy(A, 0, both, A.length, B.length);
         int indexA = 0;
         int indexB = both.length - 1;
         while (indexA < A.length && indexB < B.length) {

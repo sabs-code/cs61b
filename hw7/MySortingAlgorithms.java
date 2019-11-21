@@ -92,7 +92,7 @@ public class MySortingAlgorithms {
         public void sort(int[] array, int k) {
             int[] arr = new int[k];
             System.arraycopy(array, 0, arr, 0, k);
-            if (k == 1) {
+            if (k == 1|| k == 0) {
             } else {
                 int middle = k / 2;
                 int[] first = new int[middle];
