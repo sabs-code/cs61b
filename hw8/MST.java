@@ -1,8 +1,9 @@
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.ArrayList;
 
 /** Minimal spanning tree utility.
- *  @author
+ *  @author Sabrina Xia
  */
 public class MST {
 
@@ -17,7 +18,22 @@ public class MST {
      *  are a subset of those in E (they do not include copies of the
      *  original edges, just the original edges themselves.) */
     public static int[][] mst(int V, int[][] E) {
-        return null;  // FIXME
+        _partition = new UnionFind(V);
+        int[][] copy = Arrays.copyOf(E, E.length);
+        Arrays.sort(copy, EDGE_WEIGHT_COMPARATOR);
+        int[][] result = new int[V - 1][];
+        int index = 0;
+        int i = 0;
+        while (_partition.get_partition().size() > 1) {
+            int[] e = copy[i];
+            if (!_partition.samePartition(e[0], e[1])) {
+                result[index] = e;
+                _partition.union(e[0], e[1]);
+                index += 1;
+            }
+            i += 1;
+        }
+        return result;
     }
 
     /** An ordering of edges by weight. */
@@ -29,4 +45,5 @@ public class MST {
             }
         };
 
+    static UnionFind _partition;
 }

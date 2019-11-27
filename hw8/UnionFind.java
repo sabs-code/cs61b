@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /** A partition of a set of contiguous integers that allows (a) finding whether
@@ -5,20 +6,33 @@ import java.util.Arrays;
  *  with their union.  At any given time, for a structure partitioning
  *  the integers 1-N, each partition is represented by a unique member of that
  *  partition, called its representative.
- *  @author
+ *  @author Sabrina Xia
  */
 public class UnionFind {
+
+    private ArrayList<int[]> _partition;
 
     /** A union-find structure consisting of the sets { 1 }, { 2 }, ... { N }.
      */
     public UnionFind(int N) {
-        // FIXME
+        _partition = new ArrayList<>();
+        for (int i = 1; i <= N; i++) {
+            _partition.add(new int[] {i});
+        }
     }
 
     /** Return the representative of the partition currently containing V.
      *  Assumes V is contained in one of the partitions.  */
     public int find(int v) {
-        return 0;  // FIXME
+        for (int i = 0; i < _partition.size(); i++) {
+            int[] arr = _partition.get(i);
+            for (int k : arr) {
+                if (k == v) {
+                    return i;
+                }
+            }
+        }
+        return Integer.MAX_VALUE;
     }
 
     /** Return true iff U and V are in the same partition. */
@@ -28,8 +42,22 @@ public class UnionFind {
 
     /** Union U and V into a single partition, returning its representative. */
     public int union(int u, int v) {
-        return 0;  // FIXME
+        int[] uarr = _partition.remove(find(u));
+        int[] varr = _partition.remove(find(v));
+        int[] union = new int[uarr.length + varr.length];
+        int i = 0;
+        for (; i < uarr.length; i++) {
+            union[i] = uarr[i];
+        }
+        for (int k = 0; k < varr.length; k++, i++) {
+            union[i] = varr[k];
+        }
+        _partition.add(0, union);
+        return 0;
     }
 
-    // FIXME
+    /** Returns the partitions. */
+    public ArrayList<int[]> get_partition() {
+        return _partition;
+    }
 }
