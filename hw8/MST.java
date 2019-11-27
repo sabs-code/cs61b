@@ -24,7 +24,7 @@ public class MST {
         int[][] result = new int[V - 1][];
         int index = 0;
         int i = 0;
-        while (_partition.get_partition().size() > 1) {
+        while (index < V-1) {
             int[] e = copy[i];
             if (!_partition.samePartition(e[0], e[1])) {
                 result[index] = e;

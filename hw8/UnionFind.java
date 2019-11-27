@@ -10,22 +10,22 @@ import java.util.Arrays;
  */
 public class UnionFind {
 
-    private ArrayList<int[]> _partition;
+    private int[][]_partition;
 
     /** A union-find structure consisting of the sets { 1 }, { 2 }, ... { N }.
      */
     public UnionFind(int N) {
-        _partition = new ArrayList<>();
+        _partition = new int[N + 1][];
         for (int i = 1; i <= N; i++) {
-            _partition.add(new int[] {i});
+            _partition[i] = new int[] {i};
         }
     }
 
     /** Return the representative of the partition currently containing V.
      *  Assumes V is contained in one of the partitions.  */
     public int find(int v) {
-        for (int i = 0; i < _partition.size(); i++) {
-            int[] arr = _partition.get(i);
+        for (int i = 1; i < _partition.length; i++) {
+            int[] arr = _partition[i];
             for (int k : arr) {
                 if (k == v) {
                     return i;
@@ -42,8 +42,10 @@ public class UnionFind {
 
     /** Union U and V into a single partition, returning its representative. */
     public int union(int u, int v) {
-        int[] uarr = _partition.remove(find(u));
-        int[] varr = _partition.remove(find(v));
+        int urep = find(u);
+        int vrep = find(v);
+        int[] uarr = _partition[urep];
+        int[] varr = _partition[vrep];
         int[] union = new int[uarr.length + varr.length];
         int i = 0;
         for (; i < uarr.length; i++) {
@@ -52,12 +54,8 @@ public class UnionFind {
         for (int k = 0; k < varr.length; k++, i++) {
             union[i] = varr[k];
         }
-        _partition.add(0, union);
-        return 0;
-    }
-
-    /** Returns the partitions. */
-    public ArrayList<int[]> get_partition() {
-        return _partition;
+        _partition[urep] = union;
+        _partition[vrep] = new int[] {};
+        return urep;
     }
 }
