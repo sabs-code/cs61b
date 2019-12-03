@@ -365,7 +365,13 @@ if __name__ == "__main__":
                     'tolerance='])
         for opt, val in opts:
             if opt == '--show':
-                show = int(val)
+                val = val.lower()
+                if re.match(r'-?\d+', val):
+                    show = int(val)
+                elif val == 'all':
+                    show = val
+                else:
+                    Usage()
             elif opt == "--keep":
                 keep = True
             elif opt == "--progdir":
