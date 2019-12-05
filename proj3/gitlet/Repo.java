@@ -74,7 +74,7 @@ public class Repo {
     private Commit _head;
 
     /** Pointers to all existing branches. **/
-    private HashMap<String, Commit> _branches;
+    private HashMap<String, Commit> _branches = new HashMap<>();
 
     /** The current staging area. **/
     private Stage _staging;

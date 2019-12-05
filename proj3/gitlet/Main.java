@@ -15,7 +15,7 @@ public class Main {
         ArrayList<String> operands = new ArrayList<>(Arrays.asList(args));
         try {
             Commands.process(operands);
-        } catch (IllegalArgumentException | IOException e) {
+        } catch (IllegalArgumentException | IOException e ) {
             System.out.println(e.getMessage());
         }
     }
