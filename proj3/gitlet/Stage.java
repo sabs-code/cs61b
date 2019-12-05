@@ -39,7 +39,8 @@ public class Stage {
     public void add(String filename) {
         File f = new File(filename);
         File copy = new File(".gitlet/stage/" + filename);
-        Utils.writeContents(copy, f);
+        byte[] contents = Utils.readContents(f);
+        Utils.writeContents(copy, contents);
         Blob b = new Blob(copy.getName());
         _staged.put(filename, b);
         _stagedFiles.add(copy);
@@ -48,7 +49,8 @@ public class Stage {
     public void rewrite(String s) {
         File staged = new File(".gitlet/stage/" + s);
         File f = new File(s);
-        Utils.writeContents(staged, f);
+        byte[] contents = Utils.readContents(f);
+        Utils.writeContents(staged, contents);
     }
 
     public void remove(String s) {

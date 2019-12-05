@@ -14,6 +14,10 @@ public class Commands implements Serializable{
 
     private static Repo _repo;
 
+    Commands() {
+        _repo = new Repo();
+    }
+
     /** Processes the command according to operands. **/
     public static void process(ArrayList<String> operands) throws IOException {
         String s = operands.remove(0);
@@ -37,7 +41,7 @@ public class Commands implements Serializable{
             Files.createDirectory(Paths.get(".gitlet"));
             Files.createDirectory(Paths.get(".gitlet/commits"));
             Files.createDirectory(Paths.get(".gitlet/stage"));
-            _repo = new Repo();
+            _repo.init();
         }
     }
 

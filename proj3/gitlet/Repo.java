@@ -13,9 +13,12 @@ public class Repo {
     Repo() {
         _commits = new HashMap<>();
         _branches.put("master", null);
+        _staging = new Stage();
+    }
+
+    public void init() {
         Commit c = new Commit("master", "initial commit");
         addCommit(c);
-        _staging = new Stage();
     }
 
     /** Add C to commit tree and update pointers. **/
