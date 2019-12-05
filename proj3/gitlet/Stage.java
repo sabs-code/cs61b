@@ -28,20 +28,20 @@ public class Stage {
         return _staged.get(s);
     }
 
-    public ArrayList<File> getAll() {
-        return _stagedFiles;
+    public HashMap<String, Blob> getAll() {
+        return _staged;
     }
 
     public boolean isEmpty() {
         return _staged.isEmpty();
     }
 
-    public void add(String s) {
-        File f = new File(s);
-        File copy = new File(".gitlet/stage/" + s);
+    public void add(String filename) {
+        File f = new File(filename);
+        File copy = new File(".gitlet/stage/" + filename);
         Utils.writeContents(copy, f);
         Blob b = new Blob(copy.getName());
-        _staged.put(s, b);
+        _staged.put(filename, b);
         _stagedFiles.add(copy);
     }
 

@@ -23,6 +23,8 @@ public class Commands implements Serializable{
             add(operands);
         } else if (s.equals("commit")) {
             commit(operands);
+        } else if (s.equals("checkout")) {
+            checkout(operands);
         }
     }
 
@@ -58,6 +60,13 @@ public class Commands implements Serializable{
             System.out.println("Please enter a commit message.");
         } else {
             _repo.commit(operands);
+        }
+    }
+
+    public static void checkout(ArrayList<String> operands) {
+        String s = operands.remove(0);
+        if (s.equals("--")) {
+            _repo.checkoutFile(operands);
         }
     }
 }

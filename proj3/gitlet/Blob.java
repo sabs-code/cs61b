@@ -12,7 +12,7 @@ import java.util.ArrayList;
  */
 public class Blob implements Serializable {
 
-    /** Serializes the file. **/
+    /** Unserializes the file. **/
     Blob(String file) {
         _name = file;
         File f = new File(file);
@@ -28,6 +28,10 @@ public class Blob implements Serializable {
     /** Return the sha-1 code of this file. **/
     public String code() {
         return _code;
+    }
+
+    public byte[] getContents() {
+        return _contents;
     }
 
     public String hash() {

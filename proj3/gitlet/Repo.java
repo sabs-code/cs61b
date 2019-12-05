@@ -67,6 +67,19 @@ public class Repo {
         addCommit(c);
     }
 
+    public void checkoutFile(ArrayList<String> operands) {
+        HashMap<String, Blob> headFileToBlobs = _head.getBlobs();
+        String filename = operands.remove(0);
+        if (!headFileToBlobs.containsKey(filename)) {
+            throw Utils.error("File does not exist in that commit.");
+        } else {
+            Blob blobHeadCommit = headFileToBlobs.get(filename);
+            File toOverwrite = new File(blobHeadCommit.name());
+            Utils.writeContents(toOverwrite, blobHeadCommit);
+        }
+
+    }
+
     /** All commits in this gitlet directory. **/
     private HashMap<String, Commit> _commits;
 

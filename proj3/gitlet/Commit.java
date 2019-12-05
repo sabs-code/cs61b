@@ -17,7 +17,6 @@ import java.time.ZonedDateTime;
 public class Commit implements Serializable {
 
     Commit(String branch, String logMessage) {
-        _blobs = new HashMap<>();
         _logMessage = logMessage;
         _branch = branch;
         _parent = null;
@@ -26,17 +25,23 @@ public class Commit implements Serializable {
     }
 
     /** Creates a new Commit. **/
-    Commit(String branch, String logMessage, Commit parent, Stage s) {
+    Commit(String branch, String logMessage, Commit parent, Stage stage) {
         _logMessage = logMessage;
         _branch = branch;
         _parent = parent;
         ZonedDateTime now = ZonedDateTime.now();
         _timestamp = now.format(DateTimeFormatter.ofPattern("EEE " +
                     "MMM d HH:mm:ss yyyy xxxx"));
-        for (File f : s.getAll()) {
-            _names.add(f.getName());
-            Blob b = new Blob(f.getName());
-            _blobs.put(b.code(), b);
+        HashMap<String, Blob> parentBlobs = parent._blobs;
+        for (String s : parentBlobs.keySet()) {
+            _blobs.put(s, parentBlobs.get(s));
+        }
+        for (String filename: stage.getAll().keySet()) {
+            if (_blobs.containsKey(filename)) {
+                _blobs.replace(filename, stage.get(filename));
+            } else {
+                _blobs.put(filename, stage.get(filename));
+            }
         }
         _code = hash();
     }
@@ -62,6 +67,9 @@ public class Commit implements Serializable {
         return Utils.sha1(toHash);
     }
 
+    public HashMap<String, Blob> getBlobs() {
+        return _blobs;
+    }
 
     public String branch() {
         return _branch;
@@ -82,7 +90,7 @@ public class Commit implements Serializable {
     private String _timestamp;
 
     /** All files in this commit. **/
-    private HashMap<String, Blob> _blobs;
+    private HashMap<String, Blob> _blobs = new HashMap<>();
 
     /** The parent of this commit. **/
     private transient Commit _parent;
