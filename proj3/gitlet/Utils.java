@@ -150,7 +150,7 @@ class Utils {
 
     /** Write OBJ to FILE. */
     static void writeObject(File file, Serializable obj) {
-        writeContents(file, serialize(obj));
+        writeContents(file, (Object) serialize(obj));
     }
 
     /* DIRECTORIES */

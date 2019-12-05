@@ -2,6 +2,7 @@ package gitlet;
 
 
 import java.io.File;
+import java.io.Serializable;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,7 +10,7 @@ import java.util.HashMap;
 /** All commits in the gitlet directory, represented as a tree.
  * @author Sabrina Xia
  */
-public class Repo {
+public class Repo implements Serializable{
     Repo() {
         _commits = new HashMap<>();
         _branches.put("master", null);

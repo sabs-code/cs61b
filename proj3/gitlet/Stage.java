@@ -1,13 +1,14 @@
 package gitlet;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 /** The staging area of this gitlet directory.
  * @author Sabrina Xia
  */
-public class Stage {
+public class Stage implements Serializable {
 
     /** All files added to the stage. **/
     private HashMap<String, Blob> _staged;
@@ -43,7 +44,6 @@ public class Stage {
         Utils.writeContents(copy, contents);
         Blob b = new Blob(copy.getName());
         _staged.put(filename, b);
-        _stagedFiles.add(copy);
     }
 
     public void rewrite(String s) {

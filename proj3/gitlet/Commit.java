@@ -55,7 +55,7 @@ public class Commit implements Serializable {
     }
 
     public String hash() {
-        ArrayList<String> toHash = new ArrayList<>();
+        ArrayList<Object> toHash = new ArrayList<>();
         toHash.add(_logMessage);
         toHash.add(_branch);
         toHash.add(_parent._code);

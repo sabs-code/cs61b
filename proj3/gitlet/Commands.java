@@ -1,5 +1,7 @@
 package gitlet;
 
+import net.sf.saxon.trans.SymbolicName;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -12,14 +14,21 @@ import java.util.ArrayList;
  */
 public class Commands implements Serializable{
 
-    private static Repo _repo;
+    private Repo _repo;
 
     Commands() {
-        _repo = new Repo();
+        File command = new File(".gitlet/command");
+        if (command.exists()) {
+            Commands c = Utils.readObject(command, Commands.class);
+            _repo = c._repo;
+        } else {
+            _repo = new Repo();
+        }
     }
 
+
     /** Processes the command according to operands. **/
-    public static void process(ArrayList<String> operands) throws IOException {
+    public void process(ArrayList<String> operands) throws IOException {
         String s = operands.remove(0);
         if (s.equals("init")) {
             init();
@@ -33,7 +42,7 @@ public class Commands implements Serializable{
     }
 
     /** Initializes a gitlet directory. Errors if there already exists one. **/
-    public static void init() throws IOException {
+    public void init() throws IOException {
         if (Files.exists(Paths.get(".gitlet"))) {
             System.out.println("A Gitlet version-control system already " +
                     "exists in the current directory.");
@@ -46,7 +55,7 @@ public class Commands implements Serializable{
     }
 
     /** Add a file to the staging area. */
-    public static void add(ArrayList<String> operands) {
+    public void add(ArrayList<String> operands) {
         String s = operands.remove(0);
         File f = new File(s);
         if (!f.exists()) {
@@ -57,7 +66,7 @@ public class Commands implements Serializable{
     }
 
      /** Create a new Commit. **/
-    public static void commit(ArrayList<String> operands) {
+    public void commit(ArrayList<String> operands) {
         if (_repo.getStage().isEmpty()) {
             System.out.println("No changes added to the commit.");
         } else if (operands.size() == 0) {
@@ -67,7 +76,7 @@ public class Commands implements Serializable{
         }
     }
 
-    public static void checkout(ArrayList<String> operands) {
+    public void checkout(ArrayList<String> operands) {
         String s = operands.remove(0);
         if (s.equals("--")) {
             _repo.checkoutFile(operands);
