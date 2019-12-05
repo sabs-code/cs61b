@@ -28,12 +28,11 @@ public class Commands implements Serializable{
 
     /** Initializes a gitlet directory. Errors if there already exists one. **/
     public static void init() throws IOException {
-        File dir = new File(".gitlet");
-        if (dir.exists()) {
+        if (Files.exists(Paths.get(".gitlet"))) {
             System.out.println("A Gitlet version-control system already " +
                     "exists in the current directory.");
         } else {
-            dir.mkdir();
+            Files.createDirectory(Paths.get(".gitlet"));
             Files.createDirectory(Paths.get(".gitlet/commits"));
             Files.createDirectory(Paths.get(".gitlet/stage"));
             _repo = new Repo();
