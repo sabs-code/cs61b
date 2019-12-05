@@ -1,6 +1,8 @@
 package gitlet;
 
 
+import com.sun.xml.internal.xsom.impl.scd.Iterators;
+
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -20,7 +22,7 @@ public class Commit implements Serializable {
         _branch = branch;
         _parent = null;
         _timestamp = "Wed Dec 31 16:00:00 1969 -0800";
-        _code = Utils.sha1(_logMessage, _branch, _timestamp, _blobs);
+        _code = initCode();
     }
 
     /** Creates a new Commit. **/
@@ -36,8 +38,30 @@ public class Commit implements Serializable {
             Blob b = new Blob(f.getName());
             _blobs.put(b.code(), b);
         }
-        _code = Utils.sha1(_logMessage, _branch, _parent, _timestamp, _blobs);
+        _code = hash();
     }
+
+    public String initCode() {
+        ArrayList<Object> toHash = new ArrayList<>();
+        toHash.add(_logMessage);
+        toHash.add(_branch);
+        toHash.add(_timestamp);
+        return Utils.sha1(toHash);
+    }
+
+    public String hash() {
+        ArrayList<String> toHash = new ArrayList<>();
+        toHash.add(_logMessage);
+        toHash.add(_branch);
+        toHash.add(_parent._code);
+        toHash.add(_timestamp);
+        for (String s : _blobs.keySet()) {
+            Blob b = _blobs.get(s);
+            toHash.add(b.code());
+        }
+        return Utils.sha1(toHash);
+    }
+
 
     public String branch() {
         return _branch;

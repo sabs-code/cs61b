@@ -20,7 +20,7 @@ public class Repo {
 
     /** Add C to commit tree and update pointers. **/
     public void addCommit(Commit c) {
-        String s = Utils.sha1(c);
+        String s = c.code();
         _commits.put(s, c);
         _head = c;
         if (_branches.containsKey(c.branch())) {
