@@ -29,14 +29,14 @@ public class Repo implements Serializable{
     public void addCommit(Commit c) {
         String s = c.code();
         _commits.add(s);
-        _head = c.code();
+        _head = s;
         if (_branches.containsKey(c.branch())) {
             _branches.replace(c.branch(), c.code());
         } else {
             _branches.put(c.branch(), c.code());
         }
-        File f = new File(".gitlet/commits/" + c.code());
-        Utils.writeObject(f, Utils.serialize(c));
+        File f = new File(".gitlet/commits/" + s);
+        Utils.writeObject(f, c);
     }
 
     public Commit head() {
