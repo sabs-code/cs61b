@@ -18,6 +18,7 @@ public class Main {
         ArrayList<String> operands = new ArrayList<>(Arrays.asList(args));
         try {
             _commands = new Commands();
+            _commands.checkUntracked();
             _commands.process(operands);
             File command = new File(".gitlet/command");
             Utils.writeObject(command, _commands);

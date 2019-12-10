@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.time.format.DateTimeFormatter;
 import java.time.ZonedDateTime;
+import java.util.HashSet;
 
 /** Represents a single commit. Stores all information in this commit.
  * @author Sabrina Xia
@@ -25,16 +26,19 @@ public class Commit implements Serializable {
     }
 
     /** Creates a new Commit. **/
-    Commit(String branch, String logMessage, Commit parent, Stage stage) {
+    Commit(String branch, String logMessage, Commit parent, Stage stage,
+           HashSet removed) {
         _logMessage = logMessage;
         _branch = branch;
-        _parent = parent;
+        _parent = parent.code();
         ZonedDateTime now = ZonedDateTime.now();
         _timestamp = now.format(DateTimeFormatter.ofPattern("EEE " +
                     "MMM d HH:mm:ss yyyy xxxx"));
         HashMap<String, Blob> parentBlobs = parent._blobs;
         for (String s : parentBlobs.keySet()) {
-            _blobs.put(s, parentBlobs.get(s));
+            if (!removed.contains(s)) {
+                _blobs.put(s, parentBlobs.get(s));
+            }
         }
         for (String filename: stage.getAll().keySet()) {
             if (_blobs.containsKey(filename)) {
@@ -58,7 +62,7 @@ public class Commit implements Serializable {
         ArrayList<Object> toHash = new ArrayList<>();
         toHash.add(_logMessage);
         toHash.add(_branch);
-        toHash.add(_parent._code);
+        toHash.add(_parent);
         toHash.add(_timestamp);
         for (String s : _blobs.keySet()) {
             Blob b = _blobs.get(s);
@@ -76,11 +80,25 @@ public class Commit implements Serializable {
     }
 
     public Blob getFile(String s) {
-        return _blobs.get(s);
+        return _blobs.getOrDefault(s, null);
     }
 
     public String code() {
         return _code;
+    }
+
+    public Commit parent() {
+        File parentFile = new File(".gitlet/commits/" + _parent);
+        Commit parent = Utils.readObject(parentFile, Commit.class);
+        return parent;
+    }
+
+    public String getTimestamp() {
+        return _timestamp;
+    }
+
+    public String getLogMessage() {
+        return _logMessage;
     }
 
     /** The log message associated with this commit. **/
@@ -93,7 +111,7 @@ public class Commit implements Serializable {
     private HashMap<String, Blob> _blobs = new HashMap<>();
 
     /** The parent of this commit. **/
-    private transient Commit _parent;
+    private String _parent;
 
     /** The branch this commit is in. **/
     private String _branch;

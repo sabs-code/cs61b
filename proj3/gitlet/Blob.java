@@ -30,7 +30,7 @@ public class Blob implements Serializable {
         return _code;
     }
 
-    public byte[] getContents() {
+    public Object getContents() {
         return _contents;
     }
 

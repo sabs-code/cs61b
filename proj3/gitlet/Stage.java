@@ -26,7 +26,7 @@ public class Stage implements Serializable {
     }
 
     public Blob get(String s) {
-        return _staged.get(s);
+        return _staged.getOrDefault(s, null);
     }
 
     public HashMap<String, Blob> getAll() {
@@ -40,7 +40,7 @@ public class Stage implements Serializable {
     public void add(String filename) {
         File f = new File(filename);
         File copy = new File(".gitlet/stage/" + filename);
-        byte[] contents = Utils.readContents(f);
+        Object contents = Utils.readContents(f);
         Utils.writeContents(copy, contents);
         Blob b = new Blob(copy.getName());
         _staged.put(filename, b);
@@ -49,7 +49,7 @@ public class Stage implements Serializable {
     public void rewrite(String s) {
         File staged = new File(".gitlet/stage/" + s);
         File f = new File(s);
-        byte[] contents = Utils.readContents(f);
+        Object contents = Utils.readContents(f);
         Utils.writeContents(staged, contents);
     }
 
