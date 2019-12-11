@@ -380,6 +380,28 @@ public class Repo implements Serializable{
                 Commit spCommit = getCommit(splitPoint);
                 Commit branch = getCommit(target.head());
                 HashMap<String, String> compare = helperCompare(spCommit, branch);
+                for (String filename : compare.keySet()) {
+                    if (compare.get(filename).equals("rm")) {
+                        remove(filename);
+                    } else if (compare.get(filename).equals("checkout and stage")) {
+                        File curr = new File(filename);
+                        byte[] overwrite = (byte[]) branch.getBlobs().get(filename).getContents();
+                        Utils.writeContents(curr, (Object) overwrite);
+                        add(filename);
+                    } else if (compare.get(filename).equals("conflict")) {
+                        String newContent = "<<<<<<< HEAD" + "\n";
+                        File curr = new File(filename);
+                        if (curr.exists()) {
+                            newContent += Utils.readContentsAsString(curr);
+                        }
+                        newContent += "=======" + "\n";
+                        if (branch.getBlobs().containsKey(filename)) {
+                            newContent += branch.getBlobs().get(filename).getContentAsString();
+                        }
+                        newContent += ">>>>>>>";
+                        Utils.writeContents(curr, newContent);
+                    }
+                }
             }
         }
     }
@@ -396,18 +418,24 @@ public class Repo implements Serializable{
                     byte[] spContents = (byte[]) spBlobs.get(filename).getContents();
                     if (Arrays.equals(currContents, spContents)) {
                         result.put(filename, "rm");
-                        if (_untracked.contains(filename)) {
-                            System.out.println("There is an untracked file in the way; delete it or add it first.");
-                            System.exit(0);
-                        }
+                    } else {
+                        result.put(filename, "conflict");
                     }
+                    if (_untracked.contains(filename)) {
+                        System.out.println("There is an untracked file in the way; delete it or add it first.");
+                        System.exit(0);
+                    }
+                } else {
+                    result.put(filename, "same");
                 }
             } else {
                 if (!curr.exists()) {
                     byte[] branchContents = (byte[]) branchBlobs.get(filename).getContents();
                     byte[] spContents = (byte[]) spBlobs.get(filename).getContents();
-                    if (!Arrays.equals(branchContents, spContents)) {
-                        result.put(filename, "checkout and stage");
+                    if (Arrays.equals(branchContents, spContents)) {
+                        result.put(filename, "same");
+                    } else {
+                        result.put(filename, "conflict");
                         if (_untracked.contains(filename)) {
                             System.out.println("There is an untracked file in the way; delete it or add it first.");
                             System.exit(0);
@@ -445,6 +473,12 @@ public class Repo implements Serializable{
                 File curr = new File(filename);
                 if (!curr.exists()) {
                     result.put(filename, "checkout and stage");
+                } else {
+                    byte[] currContents = Utils.readContents(curr);
+                    byte[] branchContents = (byte[]) branchBlobs.get(filename).getContents();
+                    if (!Arrays.equals(currContents, branchContents)) {
+                        result.put(filename, "conflict");
+                    }
                 }
             }
         }

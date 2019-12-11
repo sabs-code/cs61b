@@ -17,6 +17,7 @@ public class Blob implements Serializable {
         _name = file;
         File f = new File(file);
         _contents = Utils.readContents(f);
+        _contentsAsString = Utils.readContentsAsString(f);
         _code = hash();
     }
 
@@ -41,6 +42,10 @@ public class Blob implements Serializable {
         return Utils.sha1(toHash);
     }
 
+    public String getContentAsString() {
+        return _contentsAsString;
+    }
+
     /** This blob's file name. **/
     private String _name;
 
@@ -48,4 +53,6 @@ public class Blob implements Serializable {
     private String _code;
 
     private byte[] _contents;
+
+    private String _contentsAsString;
 }
