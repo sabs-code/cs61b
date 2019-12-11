@@ -50,6 +50,12 @@ public class Commit implements Serializable {
         _code = hash();
     }
 
+    Commit(String branch, String logMessage, Commit parent, Commit mergeParent,
+           Stage stage, HashSet removed) {
+        this(branch, logMessage, parent, stage, removed);
+        _mergeParent = mergeParent.code();
+    }
+
     public String initCode() {
         ArrayList<Object> toHash = new ArrayList<>();
         toHash.add(_logMessage);
@@ -126,6 +132,7 @@ public class Commit implements Serializable {
 
     /** The branch this commit is in. **/
     private String _branch;
+
 
     private String _code;
 

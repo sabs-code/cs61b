@@ -89,7 +89,7 @@ public class Commands implements Serializable{
         File[] allFiles = dir.listFiles();
         if (allFiles != null) {
             for (File f: allFiles) {
-                if (f.isDirectory()) {
+                if (f.isDirectory() && !f.isHidden()) {
                     files.addAll(allFiles(f));
                 } else if (f.isFile()) {
                     files.add(f.getName());
@@ -114,7 +114,7 @@ public class Commands implements Serializable{
     public void commit(ArrayList<String> operands) {
         if (_repo.nochange()) {
             System.out.println("No changes added to the commit.");
-        } else if (operands.size() == 0) {
+        } else if (operands.size() == 0 || operands.get(0).length() == 0) {
             System.out.println("Please enter a commit message.");
         } else {
             _repo.commit(operands);
@@ -123,11 +123,8 @@ public class Commands implements Serializable{
 
     /** Untrack the file in operands. **/
     public void remove(ArrayList<String> operands) {
-        try {
-            String file = operands.remove(0);
-            _repo.remove(file);
-        } catch (NullPointerException ignored) {
-        }
+        String file = operands.remove(0);
+        _repo.remove(file);
     }
 
     /** Make repo print gitlet log. */
@@ -148,8 +145,8 @@ public class Commands implements Serializable{
         if (s.equals("--")) {
             _repo.checkoutFile(operands);
         } else if (operands.size() == 2) {
-            if (!_repo.hasCommit(s)) {
-                System.out.println("No commit with that id exists.");
+            if (!operands.get(0).equals("--")) {
+                System.out.println("Incorrect operands.");
             } else {
                 _repo.checkoutFileinCommit(s, operands.remove(1));
             }

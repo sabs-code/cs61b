@@ -13,12 +13,9 @@ public class Stage implements Serializable {
     /** All files added to the stage. **/
     private HashMap<String, Blob> _staged;
 
-    private ArrayList<File> _stagedFiles;
-
 
     Stage() {
         _staged = new HashMap<>();
-        _stagedFiles = new ArrayList<>();
     }
 
     public boolean contains(String s) {
@@ -54,15 +51,16 @@ public class Stage implements Serializable {
     }
 
     public void remove(String s) {
+        _staged.remove(s);
         File toRemove = new File(".gitlet/stage/" + s);
-        Utils.restrictedDelete(toRemove);
+        toRemove.delete();
     }
 
     public void clear() {
-        _staged.clear();
-        while (_stagedFiles.size() > 0) {
-            File f = _stagedFiles.remove(0);
-            Utils.restrictedDelete(f);
+        for (String s : _staged.keySet()) {
+            File f = new File(".gitlet/stage/" + s);
+            f.delete();
         }
+        _staged.clear();
     }
 }

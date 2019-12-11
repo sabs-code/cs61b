@@ -25,13 +25,13 @@ public class Repo implements Serializable{
     public void init() {
         Commit c = new Commit("master", "initial commit");
         addCommit(c);
+        _headBranch = _branches.get("master");
     }
 
     /** Add C to commit tree and update pointers. **/
     public void addCommit(Commit c) {
         String s = c.code();
         _commits.add(s);
-        _head = s;
         File f = new File(".gitlet/commits/" + s);
         Utils.writeObject(f, c);
         if (_branches.containsKey(c.branch())) {
@@ -43,7 +43,7 @@ public class Repo implements Serializable{
     }
 
     public Commit head() {
-        return getCommit(_head);
+        return getCommit(_headBranch.head());
     }
 
     public boolean hasCommit(String id) {
@@ -59,15 +59,9 @@ public class Repo implements Serializable{
     public void updateUntracked(HashSet<String> fileNames) {
         _untracked = new HashSet<>();
         HashSet<String> helper1 = new HashSet<>(fileNames);
-        Branch headBranch;
-        if (_head == null) {
-            headBranch = _branches.get("master");
-        } else {
-            headBranch = _branches.get(head().branch());
-        }
         if (fileNames.size() != 0) {
             for (String name : fileNames) {
-                if (headBranch.tracked(name)) {
+                if (_headBranch.tracked(name)) {
                     helper1.remove(name);
                 }
             }
@@ -80,7 +74,7 @@ public class Repo implements Serializable{
                 }
             }
         }
-        _untracked.addAll(helper1);
+        _untracked.addAll(helper2);
     }
 
     public boolean nochange() {
@@ -88,24 +82,29 @@ public class Repo implements Serializable{
     }
 
     public void add(String s) {
-        if (_staging.contains(s)) {
-            Blob b = new Blob(s);
-            Commit curr = head();
-            Blob commited = curr.getFile(s);
-            if (commited != null) {
-                if (commited.code().equals(b.code())) {
+        Commit curr = head();
+        if (curr.getBlobs().containsKey(s)) {
+            Blob b = curr.getBlobs().get(s);
+            byte[] commited = (byte[]) b.getContents();
+            File f = new File(s);
+            byte[] currContents = Utils.readContents(f);
+            if (_staging.contains(s)) {
+                if (Arrays.equals(commited, currContents)) {
                     _staging.remove(s);
-                }
-            }
-            Blob staged = _staging.get(s);
-            if (staged != null) {
-                if (staged.code().equals(b.code())) {
                 } else {
                     _staging.rewrite(s);
                 }
+            } else {
+                if (!Arrays.equals(commited, currContents)) {
+                    _staging.add(s);
+                }
             }
         } else {
-            _staging.add(s);
+            if (_staging.contains(s)) {
+                _staging.rewrite(s);
+            } else {
+                _staging.add(s);
+            }
         }
         _removed.remove(s);
         _untracked.remove(s);
@@ -113,12 +112,10 @@ public class Repo implements Serializable{
 
     public void commit(ArrayList<String> operands) {
         String log = operands.remove(0);
-        Commit c = new Commit(head().branch(), log, head(), _staging, _removed);
+        Commit c = new Commit(_headBranch.name(), log, head(), _staging, _removed);
         addCommit(c);
         _removed.clear();
         _staging.clear();
-        _commits.add(c.code());
-        _head = c.code();
     }
 
     public void remove(String filename) {
@@ -128,10 +125,11 @@ public class Repo implements Serializable{
             System.out.println("No reason to remove the file.");
         } else if (_staging.contains(filename)) {
             _staging.remove(filename);
-        } else if (headCommit.getBlobs().containsKey(filename)) {
+        }
+        if (headCommit.getBlobs().containsKey(filename)) {
             _removed.add(filename);
             File file = new File(filename);
-            Utils.restrictedDelete(file);
+            file.delete();
         }
     }
 
@@ -183,19 +181,19 @@ public class Repo implements Serializable{
         Collections.sort(helper);
         for (String branch : helper) {
             if (branch.equals(head().branch())) {
-                System.out.println("*" + helper.remove(branch));
-                helper.remove(branch);
+                System.out.println("*" + branch);
             } else {
                 System.out.println(branch);
-                helper.remove(branch);
             }
         }
         System.out.println();
         System.out.println("=== Staged Files ===");
+        helper.clear();
         helper.addAll(_staging.getAll().keySet());
+        ArrayList<String> helper1 = new ArrayList<>(helper);
         ArrayList<String> modified = new ArrayList<>();
         ArrayList<String> deleted = new ArrayList<>();
-        for (String file : helper) {
+        for (String file : helper1) {
             File staged = new File(".gitlet/stage/" + file);
             File working = new File(file);
             if (!working.exists()) {
@@ -210,29 +208,33 @@ public class Repo implements Serializable{
         Collections.sort(helper);
         for (String s : helper) {
             System.out.println(s);
-            helper.remove(s);
         }
         System.out.println();
         System.out.println("=== Removed Files ===");
+        helper.clear();
         helper.addAll(_removed);
         Collections.sort(helper);
         for (String s : helper) {
             System.out.println(s);
-            helper.remove(s);
         }
+        helper.clear();
         System.out.println();
         System.out.println("=== Modifications Not Staged For Commit ===");
         HashMap<String, Blob> headBlobs = head().getBlobs();
         for (String file : headBlobs.keySet()) {
             File curr = new File(file);
             if (!curr.exists()) {
-                deleted.add(file);
-                continue;
+                if (!deleted.contains(file)) {
+                    deleted.add(file);
+                    continue;
+                }
             }
             byte[] currContents = Utils.readContents(curr);
             byte[] commited = (byte[]) headBlobs.get(file).getContents();
             if (!Arrays.equals(currContents, commited)) {
-                modified.add(file);
+                if (!modified.contains(file)) {
+                    modified.add(file);
+                }
             }
         }
         helper.addAll(modified);
@@ -241,13 +243,16 @@ public class Repo implements Serializable{
         for (String file : helper) {
             if (modified.contains(file)) {
                 System.out.println(file + " (modified)");
-            } else {
+            } else if (!_removed.contains(file)){
                 System.out.println(file + " (deleted)");
             }
         }
         System.out.println();
         System.out.println("=== Untracked Files ===");
-        for (String s : _untracked) {
+        helper.clear();
+        helper.addAll(_untracked);
+        Collections.sort(helper);
+        for (String s : helper) {
             System.out.println(s);
         }
     }
@@ -272,6 +277,10 @@ public class Repo implements Serializable{
                     break;
                 }
             }
+        }
+        if (!_commits.contains(commitid)) {
+            System.out.println("No commit with that id exists.");
+            System.exit(0);
         }
         Commit targetCommit = getCommit(commitid);
         if (!targetCommit.getBlobs().containsKey(filename)) {
@@ -303,25 +312,26 @@ public class Repo implements Serializable{
             Object commited = blobsInCommit.get(filename).getContents();
             Utils.writeContents(curr, commited);
         }
-        HashSet<String> trackedFiles = _branches.get(head().branch()).tracked();
+        HashSet<String> trackedFiles = _headBranch.tracked();
         for (String filename : trackedFiles) {
             if (!blobsInCommit.containsKey(filename)) {
-                Utils.restrictedDelete(new File(filename));
+                File f = new File(filename);
+                f.delete();
             }
         }
         _staging.clear();
-        _head = commit.code();
     }
 
     public void checkoutBranch(String branchName) {
         if (!_branches.containsKey(branchName)) {
             System.out.println("No such branch exists.");
-        } else if (head().branch().equals(branchName)) {
+        } else if (_headBranch.name().equals(branchName)) {
             System.out.println("No need to checkout the current branch.");
         } else {
             String commitid = _branches.get(branchName).head();
             Commit commit = getCommit(commitid);
             checkoutCommit(commit);
+            _headBranch = _branches.get(branchName);
         }
     }
 
@@ -329,7 +339,7 @@ public class Repo implements Serializable{
         if (_branches.containsKey(branchname)) {
             System.out.println("A branch with that name already exists.");
         } else {
-            Branch b = new Branch(branchname, _head);
+            Branch b = new Branch(branchname, _headBranch.head());
             _branches.put(branchname, b);
         }
     }
@@ -369,12 +379,13 @@ public class Repo implements Serializable{
         } else if (head().branch().equals(branchname)) {
             System.out.println("Cannot merge a branch with itself.");
         } else {
+            boolean conflict = false;
             Branch target = _branches.get(branchname);
-            String splitPoint = findSplitPoint(_head, target.head());
+            String splitPoint = findSplitPoint(_headBranch.head(), target.head());
             if (splitPoint.equals(target.head())) {
                 System.out.println("Given branch is an ancestor of the current branch.");
-            } else if (splitPoint.equals(_head)) {
-                _head = target.head();
+            } else if (splitPoint.equals(_headBranch.head())) {
+                _headBranch.updatehead(target.head());
                 System.out.println("Current branch fast-forwarded.");
             } else {
                 Commit spCommit = getCommit(splitPoint);
@@ -389,6 +400,7 @@ public class Repo implements Serializable{
                         Utils.writeContents(curr, (Object) overwrite);
                         add(filename);
                     } else if (compare.get(filename).equals("conflict")) {
+                        conflict = true;
                         String newContent = "<<<<<<< HEAD" + "\n";
                         File curr = new File(filename);
                         if (curr.exists()) {
@@ -402,6 +414,17 @@ public class Repo implements Serializable{
                         Utils.writeContents(curr, newContent);
                     }
                 }
+            }
+            String log = "Merged " + branchname + " into "
+                    + _headBranch.name() + ".";
+            Commit mergeParent = getCommit(target.head());
+            Commit c = new Commit(_headBranch.name(), log, head(), mergeParent,
+                    _staging, _removed);
+            addCommit(c);
+            _removed.clear();
+            _staging.clear();
+            if (conflict) {
+                System.out.println("Encountered a merge conflict.");
             }
         }
     }
@@ -518,11 +541,11 @@ public class Repo implements Serializable{
         return result;
     }
 
+
     /** All commits in this gitlet directory. **/
     private HashSet<String> _commits;
 
-    /** Commit id of the head of this gitlet directory. **/
-    private String _head;
+    private Branch _headBranch;
 
     /** Pointers to all existing branches. **/
     private HashMap<String, Branch> _branches = new HashMap<>();
@@ -534,5 +557,7 @@ public class Repo implements Serializable{
     private HashSet<String> _untracked;
 
     private HashSet<String> _removed = new HashSet<>();
+
+
 
 }
