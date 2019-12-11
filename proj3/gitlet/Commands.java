@@ -51,6 +51,14 @@ public class Commands implements Serializable{
             find(operands);
         } else if (s.equals("status")) {
             _repo.status();
+        } else if (s.equals("branch")) {
+            branch(operands);
+        } else if (s.equals("rm-branch")) {
+            rmBranch(operands);
+        } else if (s.equals("reset")) {
+            reset(operands);
+        } else if (s.equals("merge")) {
+            merge(operands);
         }
     }
 
@@ -104,7 +112,7 @@ public class Commands implements Serializable{
 
      /** Create a new Commit according to operands. **/
     public void commit(ArrayList<String> operands) {
-        if (_repo.getStage().isEmpty()) {
+        if (_repo.nochange()) {
             System.out.println("No changes added to the commit.");
         } else if (operands.size() == 0) {
             System.out.println("Please enter a commit message.");
@@ -149,4 +157,25 @@ public class Commands implements Serializable{
             _repo.checkoutBranch(s);
         }
     }
+
+    public void branch(ArrayList<String> operands) {
+        String branchname = operands.remove(0);
+        _repo.createBranch(branchname);
+    }
+
+    public void rmBranch(ArrayList<String> operands) {
+        String branchname = operands.remove(0);
+        _repo.removeBranch(branchname);
+    }
+
+    public void reset(ArrayList<String> operands) {
+        String commitid = operands.remove(0);
+        _repo.reset(commitid);
+    }
+
+    public void merge(ArrayList<String> operands) {
+        String branchname = operands.remove(0);
+        _repo.merge(branchname);
+    }
 }
+

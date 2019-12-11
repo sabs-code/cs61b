@@ -88,6 +88,9 @@ public class Commit implements Serializable {
     }
 
     public Commit parent() {
+        if (_parent == null) {
+            return null;
+        }
         File parentFile = new File(".gitlet/commits/" + _parent);
         Commit parent = Utils.readObject(parentFile, Commit.class);
         return parent;
@@ -99,6 +102,14 @@ public class Commit implements Serializable {
 
     public String getLogMessage() {
         return _logMessage;
+    }
+
+    public void setMergeParent(String parentid) {
+        _mergeParent = parentid;
+    }
+
+    public String getMergeParent() {
+        return _mergeParent;
     }
 
     /** The log message associated with this commit. **/
@@ -119,4 +130,6 @@ public class Commit implements Serializable {
     private String _code;
 
     private ArrayList<String> _names = new ArrayList<>();
+
+    private String _mergeParent;
 }

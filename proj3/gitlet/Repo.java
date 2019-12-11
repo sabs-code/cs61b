@@ -2,10 +2,12 @@ package gitlet;
 
 
 import com.sun.xml.internal.xsom.impl.scd.Iterators;
+import edu.neu.ccs.HexXShort;
 import edu.neu.ccs.util.FileUtilities;
+import org.antlr.v4.runtime.misc.Pair;
 import org.checkerframework.checker.units.qual.A;
 import java.io.File;
-
+import java.lang.Object;
 import java.io.Serializable;
 import java.nio.file.Paths;
 import java.util.*;
@@ -16,7 +18,7 @@ import java.util.*;
 public class Repo implements Serializable{
     Repo() {
         _commits = new HashSet<>();
-        _branches.put("master", null);
+        _branches.put("master", new Branch("master"));
         _staging = new Stage();
     }
 
@@ -30,23 +32,18 @@ public class Repo implements Serializable{
         String s = c.code();
         _commits.add(s);
         _head = s;
-        if (_branches.containsKey(c.branch())) {
-            _branches.replace(c.branch(), c.code());
-        } else {
-            _branches.put(c.branch(), c.code());
-        }
         File f = new File(".gitlet/commits/" + s);
         Utils.writeObject(f, c);
+        if (_branches.containsKey(c.branch())) {
+            Branch b = _branches.get(c.branch());
+            b.updatehead(c.code());
+        } else {
+            _branches.put(c.branch(), new Branch(c.branch(), c.code()));
+        }
     }
 
     public Commit head() {
-        File headFile = new File(".gitlet/commits/" + _head);
-        Commit headCommit = Utils.readObject(headFile, Commit.class);
-        return headCommit;
-    }
-
-    public Stage getStage() {
-        return _staging;
+        return getCommit(_head);
     }
 
     public boolean hasCommit(String id) {
@@ -60,21 +57,34 @@ public class Repo implements Serializable{
     }
 
     public void updateUntracked(HashSet<String> fileNames) {
+        _untracked = new HashSet<>();
+        HashSet<String> helper1 = new HashSet<>(fileNames);
+        Branch headBranch;
+        if (_head == null) {
+            headBranch = _branches.get("master");
+        } else {
+            headBranch = _branches.get(head().branch());
+        }
         if (fileNames.size() != 0) {
             for (String name : fileNames) {
-                if (_trackedFiles.contains(name)) {
-                    fileNames.remove(name);
+                if (headBranch.tracked(name)) {
+                    helper1.remove(name);
                 }
             }
         }
+        HashSet<String> helper2 = new HashSet<>(helper1);
         if (fileNames.size() != 0) {
             for (String name : fileNames) {
                 if (_staging.contains(name)) {
-                    fileNames.remove(name);
+                    helper2.remove(name);
                 }
             }
         }
-        _untracked.addAll(fileNames);
+        _untracked.addAll(helper1);
+    }
+
+    public boolean nochange() {
+        return _removed.isEmpty() && _staging.isEmpty();
     }
 
     public void add(String s) {
@@ -97,14 +107,12 @@ public class Repo implements Serializable{
         } else {
             _staging.add(s);
         }
-        _untracked.remove(s);
         _removed.remove(s);
-        _trackedFiles.add(s);
+        _untracked.remove(s);
     }
 
     public void commit(ArrayList<String> operands) {
-        operands.remove(0);
-        String log = operands.toString();
+        String log = operands.remove(0);
         Commit c = new Commit(head().branch(), log, head(), _staging, _removed);
         addCommit(c);
         _removed.clear();
@@ -125,8 +133,6 @@ public class Repo implements Serializable{
             File file = new File(filename);
             Utils.restrictedDelete(file);
         }
-        _trackedFiles.remove(filename);
-        _untracked.add(filename);
     }
 
     public void log() {
@@ -142,7 +148,8 @@ public class Repo implements Serializable{
     public void globalLog() {
         HashSet<String> printed = new HashSet<>();
         for (String branch : _branches.keySet()) {
-            String commitid = _branches.get(branch);
+            Branch b = _branches.get(branch);
+            String commitid = b.head();
             for (Commit c = getCommit(commitid); c != null; c = c.parent()) {
                 if (!printed.contains(c.code())) {
                     System.out.println("===");
@@ -177,8 +184,10 @@ public class Repo implements Serializable{
         for (String branch : helper) {
             if (branch.equals(head().branch())) {
                 System.out.println("*" + helper.remove(branch));
+                helper.remove(branch);
             } else {
-                System.out.println(helper.remove(branch));
+                System.out.println(branch);
+                helper.remove(branch);
             }
         }
         System.out.println();
@@ -213,11 +222,32 @@ public class Repo implements Serializable{
         }
         System.out.println();
         System.out.println("=== Modifications Not Staged For Commit ===");
+        HashMap<String, Blob> headBlobs = head().getBlobs();
+        for (String file : headBlobs.keySet()) {
+            File curr = new File(file);
+            if (!curr.exists()) {
+                deleted.add(file);
+                continue;
+            }
+            byte[] currContents = Utils.readContents(curr);
+            byte[] commited = (byte[]) headBlobs.get(file).getContents();
+            if (!Arrays.equals(currContents, commited)) {
+                modified.add(file);
+            }
+        }
+        helper.addAll(modified);
+        helper.addAll(deleted);
+        Collections.sort(helper);
+        for (String file : helper) {
+            if (modified.contains(file)) {
+                System.out.println(file + " (modified)");
+            } else {
+                System.out.println(file + " (deleted)");
+            }
+        }
         System.out.println();
         System.out.println("=== Untracked Files ===");
-        ArrayList<String> untracked = new ArrayList<>(_untracked);
-        Collections.sort(untracked);
-        for (String s : untracked) {
+        for (String s : _untracked) {
             System.out.println(s);
         }
     }
@@ -253,41 +283,205 @@ public class Repo implements Serializable{
         }
     }
 
+    public void checkoutCommit(Commit commit) {
+        HashMap<String, Blob> blobsInCommit = commit.getBlobs();
+        for (String filename : blobsInCommit.keySet()) {
+            if (_untracked.contains(filename)) {
+                File curr = new File(filename);
+                byte[] currInBytes = Utils.readContents(curr);
+                byte[] commitInBytes = (byte[]) blobsInCommit.get(
+                        filename).getContents();
+                if (!Arrays.equals(currInBytes, commitInBytes)) {
+                    System.out.println("There is an untracked file in "
+                            + "the way; delete it or add it first.");
+                    System.exit(0);
+                }
+            }
+        }
+        for (String filename : blobsInCommit.keySet()) {
+            File curr = new File(filename);
+            Object commited = blobsInCommit.get(filename).getContents();
+            Utils.writeContents(curr, commited);
+        }
+        HashSet<String> trackedFiles = _branches.get(head().branch()).tracked();
+        for (String filename : trackedFiles) {
+            if (!blobsInCommit.containsKey(filename)) {
+                Utils.restrictedDelete(new File(filename));
+            }
+        }
+        _staging.clear();
+        _head = commit.code();
+    }
+
     public void checkoutBranch(String branchName) {
         if (!_branches.containsKey(branchName)) {
             System.out.println("No such branch exists.");
         } else if (head().branch().equals(branchName)) {
             System.out.println("No need to checkout the current branch.");
         } else {
-            String commitid = _branches.get(branchName);
+            String commitid = _branches.get(branchName).head();
             Commit commit = getCommit(commitid);
-            HashMap<String, Blob> blobsInCommit = commit.getBlobs();
-            for (String filename : blobsInCommit.keySet()) {
-                if (_untracked.contains(filename)) {
-                    File curr = new File(filename);
-                    byte[] currInBytes = Utils.serialize(curr);
-                    byte[] commitInBytes = (byte[]) blobsInCommit.get(
-                            filename).getContents();
-                    if (!Arrays.equals(currInBytes, commitInBytes)) {
-                        System.out.println("There is an untracked file in "
-                               + "the way; delete it or add it first.");
-                        System.exit(0);
+            checkoutCommit(commit);
+        }
+    }
+
+    public void createBranch(String branchname) {
+        if (_branches.containsKey(branchname)) {
+            System.out.println("A branch with that name already exists.");
+        } else {
+            Branch b = new Branch(branchname, _head);
+            _branches.put(branchname, b);
+        }
+    }
+
+    public void removeBranch(String branchname) {
+        if (!_branches.containsKey(branchname)) {
+            System.out.println("A branch with that name does not exist.");
+        } else if (head().branch().equals(branchname)) {
+            System.out.println("Cannot remove the current branch.");
+        } else {
+            _branches.remove(branchname);
+        }
+    }
+
+    public void reset(String commitid) {
+        if (!_commits.contains(commitid)) {
+            System.out.println("No commit with that id exists.");
+        } else {
+            if (commitid.length() < 40) {
+                for (String s : _commits) {
+                    if (s.substring(0, commitid.length()).equals(commitid)) {
+                        commitid = s;
+                        break;
                     }
                 }
             }
-            for (String filename : blobsInCommit.keySet()) {
-                File curr = new File(filename);
-                Object commited = blobsInCommit.get(filename).getContents();
-                Utils.writeContents(curr, commited);
+            Commit commit = getCommit(commitid);
+            checkoutCommit(commit);
+        }
+    }
+
+    public void merge(String branchname) {
+        if (!nochange()) {
+            System.out.println("You have uncommitted changes.");
+        } else if (!_branches.containsKey(branchname)) {
+            System.out.println("A branch with that name does not exist.");
+        } else if (head().branch().equals(branchname)) {
+            System.out.println("Cannot merge a branch with itself.");
+        } else {
+            Branch target = _branches.get(branchname);
+            String splitPoint = findSplitPoint(_head, target.head());
+            if (splitPoint.equals(target.head())) {
+                System.out.println("Given branch is an ancestor of the current branch.");
+            } else if (splitPoint.equals(_head)) {
+                _head = target.head();
+                System.out.println("Current branch fast-forwarded.");
+            } else {
+                Commit spCommit = getCommit(splitPoint);
+                Commit branch = getCommit(target.head());
+                HashMap<String, String> compare = helperCompare(spCommit, branch);
             }
-            for (String filename : _trackedFiles) {
-                if (!blobsInCommit.keySet().contains(filename)) {
-                    Utils.restrictedDelete(new File(filename));
+        }
+    }
+
+    public HashMap<String, String> helperCompare(Commit sp, Commit branch) {
+        HashMap<String, String> result = new HashMap<>();
+        HashMap<String, Blob> spBlobs = sp.getBlobs();
+        HashMap<String, Blob> branchBlobs = branch.getBlobs();
+        for (String filename : spBlobs.keySet()) {
+            File curr = new File(filename);
+            if (!branchBlobs.containsKey(filename)) {
+                if (curr.exists()) {
+                    byte[] currContents = Utils.readContents(curr);
+                    byte[] spContents = (byte[]) spBlobs.get(filename).getContents();
+                    if (Arrays.equals(currContents, spContents)) {
+                        result.put(filename, "rm");
+                        if (_untracked.contains(filename)) {
+                            System.out.println("There is an untracked file in the way; delete it or add it first.");
+                            System.exit(0);
+                        }
+                    }
+                }
+            } else {
+                if (!curr.exists()) {
+                    byte[] branchContents = (byte[]) branchBlobs.get(filename).getContents();
+                    byte[] spContents = (byte[]) spBlobs.get(filename).getContents();
+                    if (!Arrays.equals(branchContents, spContents)) {
+                        result.put(filename, "checkout and stage");
+                        if (_untracked.contains(filename)) {
+                            System.out.println("There is an untracked file in the way; delete it or add it first.");
+                            System.exit(0);
+                        }
+                    }
+                } else {
+                    byte[] currContents = Utils.readContents(curr);
+                    byte[] branchContents = (byte[]) branchBlobs.get(filename).getContents();
+                    byte[] spContents = (byte[]) spBlobs.get(filename).getContents();
+                    if (!Arrays.equals(branchContents, spContents)
+                            && Arrays.equals(spContents, currContents)) {
+                        result.put(filename, "checkout and stage");
+                        if (_untracked.contains(filename)) {
+                            System.out.println("There is an untracked file in the way; delete it or add it first.");
+                            System.exit(0);
+                        }
+                    } else if (Arrays.equals(branchContents, spContents)
+                            && !Arrays.equals(currContents, spContents)) {
+                        result.put(filename, "same");
+                    } else if (Arrays.equals(currContents, branchContents)) {
+                        result.put(filename, "same");
+                    } else if (!Arrays.equals(currContents, spContents)
+                            && !Arrays.equals(branchContents, spContents)
+                            && !Arrays.equals(currContents, branchContents)) {
+                        result.put(filename, "conflict");
+                        if (_untracked.contains(filename)) {
+                            System.exit(0);
+                        }
+                    }
                 }
             }
-            _staging.clear();
-            _head = commitid;
         }
+        for (String filename : branchBlobs.keySet()) {
+            if (!spBlobs.containsKey(filename)) {
+                File curr = new File(filename);
+                if (!curr.exists()) {
+                    result.put(filename, "checkout and stage");
+                }
+            }
+        }
+        return result;
+    }
+
+    public String findSplitPoint(String first, String second) {
+        HashMap<String, Integer> helper = new HashMap<>();
+        int i = 0;
+        for (Commit c = getCommit(first); c != null; c = c.parent(), i++) {
+            helper.put(c.code(), i);
+            if (c.getMergeParent() != null) {
+                helper.put(c.getMergeParent(), -1);
+            }
+        }
+        HashMap<String, Integer> ancestors= new HashMap<>();
+        int j = 0;
+        for (Commit c = getCommit(second); c != null; c = c.parent(), j++) {
+            if (helper.containsKey(c.getMergeParent())) {
+                String id = c.getMergeParent();
+                ancestors.put(id, helper.get(id));
+            } else if (helper.containsKey(c.code())) {
+                ancestors.put(c.code(), j);
+            }
+            if (ancestors.size() == 2) {
+                break;
+            }
+        }
+        Integer index = Integer.MAX_VALUE;
+        String result = null;
+        for (String id : ancestors.keySet()) {
+            if (ancestors.get(id) < index) {
+                result = id;
+                index = ancestors.get(id);
+            }
+        }
+        return result;
     }
 
     /** All commits in this gitlet directory. **/
@@ -297,15 +491,13 @@ public class Repo implements Serializable{
     private String _head;
 
     /** Pointers to all existing branches. **/
-    private HashMap<String, String> _branches = new HashMap<>();
+    private HashMap<String, Branch> _branches = new HashMap<>();
 
     /** The current staging area. **/
     private Stage _staging;
 
     /** File names of untracked files. **/
-    private HashSet<String> _untracked = new HashSet<>();
-
-    private HashSet<String> _trackedFiles = new HashSet<>();
+    private HashSet<String> _untracked;
 
     private HashSet<String> _removed = new HashSet<>();
 
