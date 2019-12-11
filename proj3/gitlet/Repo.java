@@ -1,15 +1,9 @@
 package gitlet;
 
 
-import com.sun.xml.internal.xsom.impl.scd.Iterators;
-import edu.neu.ccs.HexXShort;
-import edu.neu.ccs.util.FileUtilities;
-import org.antlr.v4.runtime.misc.Pair;
-import org.checkerframework.checker.units.qual.A;
 import java.io.File;
 import java.lang.Object;
 import java.io.Serializable;
-import java.nio.file.Paths;
 import java.util.*;
 
 /** All commits in the gitlet directory, represented as a tree.

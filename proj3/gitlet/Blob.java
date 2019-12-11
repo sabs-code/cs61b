@@ -1,10 +1,6 @@
 package gitlet;
-import java.awt.image.AreaAveragingScaleFilter;
-import java.io.IOException;
 import java.io.Serializable;
 import java.io.File;
-import java.io.ObjectOutputStream;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 /** Represents and stores the contents of a file.

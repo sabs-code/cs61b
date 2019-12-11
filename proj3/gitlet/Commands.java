@@ -1,8 +1,5 @@
 package gitlet;
 
-import com.sun.xml.internal.xsom.impl.scd.Iterators;
-import net.sf.saxon.trans.SymbolicName;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -10,7 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.function.DoublePredicate;
 
 /** Gitlet commands.
  * @author Sabrina Xia
