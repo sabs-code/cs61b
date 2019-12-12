@@ -426,6 +426,7 @@ public class Repo implements Serializable{
         }
     }
 
+    
     /** Merges current branch with branch named BRANCHNAME. **/
     public void merge(String branchname) {
         if (!nochange()) {
