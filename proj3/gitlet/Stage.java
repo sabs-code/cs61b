@@ -9,7 +9,8 @@ import java.util.HashMap;
  */
 public class Stage implements Serializable {
 
-    /** All files added to the stage. **/
+    /** All files staged and their contents in blobs, together in a
+     * Hashmap. **/
     private HashMap<String, Blob> _staged;
 
 
@@ -17,14 +18,17 @@ public class Stage implements Serializable {
         _staged = new HashMap<>();
     }
 
+    /** Returns true only if file S is staged. **/
     public boolean contains(String s) {
         return _staged.containsKey(s);
     }
 
+    /** Returns the Blob of file S in this stage. **/
     public Blob get(String s) {
         return _staged.getOrDefault(s, null);
     }
 
+    /** Returns all file names and their Blobs(contents) in a Hashmap. **/
     public HashMap<String, Blob> getAll() {
         return _staged;
     }

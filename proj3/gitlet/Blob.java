@@ -17,7 +17,7 @@ public class Blob implements Serializable {
         _code = hash();
     }
 
-    /** Return the file name of this blob. **/
+    /** Return the file name this blob corresponds to. **/
     public String name() {
         return _name;
     }
@@ -27,10 +27,12 @@ public class Blob implements Serializable {
         return _code;
     }
 
+    /** Returns the contents of this blob in a byte array. **/
     public Object getContents() {
         return _contents;
     }
 
+    /** Computes and returns the unique hash code of this blob. **/
     public String hash() {
         ArrayList<Object> toHash = new ArrayList<>();
         toHash.add(_name);
@@ -38,6 +40,7 @@ public class Blob implements Serializable {
         return Utils.sha1(toHash);
     }
 
+    /** Returns the contents of this blob in String. **/
     public String getContentAsString() {
         return _contentsAsString;
     }
@@ -48,7 +51,9 @@ public class Blob implements Serializable {
     /** Sha-1 code of this blob's serialized file. **/
     private String _code;
 
+    /** Contents of this blob/file in byte array. **/
     private byte[] _contents;
 
+    /** Contents of this blob/file in string. **/
     private String _contentsAsString;
 }

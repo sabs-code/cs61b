@@ -14,7 +14,6 @@ import java.util.HashSet;
  * @author Sabrina Xia
  */
 public class Commit implements Serializable {
-
     Commit(String branch, String logMessage) {
         _logMessage = logMessage;
         _branch = branch;
@@ -23,7 +22,6 @@ public class Commit implements Serializable {
         _code = initCode();
     }
 
-    /** Creates a new Commit. **/
     Commit(String branch, String logMessage, Commit parent, Stage stage,
            HashSet removed) {
         _logMessage = logMessage;
@@ -54,6 +52,7 @@ public class Commit implements Serializable {
         _mergeParent = mergeParent.code();
     }
 
+    /** The unique hashcode of the first commit in gitlet. **/
     public String initCode() {
         ArrayList<Object> toHash = new ArrayList<>();
         toHash.add(_logMessage);
@@ -62,6 +61,7 @@ public class Commit implements Serializable {
         return Utils.sha1(toHash);
     }
 
+    /** Computes and returns the hash code of this commit. **/
     public String hash() {
         ArrayList<Object> toHash = new ArrayList<>();
         toHash.add(_logMessage);
@@ -75,22 +75,24 @@ public class Commit implements Serializable {
         return Utils.sha1(toHash);
     }
 
+    /** Returns all files and its corresponding blobs in a Hashmap. **/
     public HashMap<String, Blob> getBlobs() {
         return _blobs;
     }
 
+    /** Returns the name of the branch that this commit is in. **/
     public String branch() {
         return _branch;
     }
 
-    public Blob getFile(String s) {
-        return _blobs.getOrDefault(s, null);
-    }
-
+    /** Returns the hashcode(sha-1) of this commit. **/
     public String code() {
         return _code;
     }
 
+    /** Returns the parent commit of this commit. Returns null if this is the
+     * first commmit in gitlet.
+     */
     public Commit parent() {
         if (_parent == null) {
             return null;
@@ -100,18 +102,19 @@ public class Commit implements Serializable {
         return parent;
     }
 
+    /** Returns the timestamp of this commit. **/
     public String getTimestamp() {
         return _timestamp;
     }
 
+    /** Returns the log message of this commit. **/
     public String getLogMessage() {
         return _logMessage;
     }
 
-    public void setMergeParent(String parentid) {
-        _mergeParent = parentid;
-    }
-
+    /** Returns the code of second(merge) parent of this commit in a string
+     * if this is a merge commit. If not, return null.
+     */
     public String getMergeParent() {
         return _mergeParent;
     }
@@ -131,10 +134,11 @@ public class Commit implements Serializable {
     /** The branch this commit is in. **/
     private String _branch;
 
-
+    /** The unique sha-1 code. **/
     private String _code;
 
-    private ArrayList<String> _names = new ArrayList<>();
-
+    /** The second(merge) parent of this commit. Not null only if
+     * this commit is a merge commit.
+     */
     private String _mergeParent;
 }
