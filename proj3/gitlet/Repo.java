@@ -529,7 +529,8 @@ public class Repo implements Serializable {
                     result.put(filename, "same");
                 }
             } else {
-                helperCompare1(result, curr, filename, branchBlobs, spBlobs);
+                result = helperCompare1(result, curr, filename,
+                        branchBlobs, spBlobs);
             }
         }
         for (String filename : branchBlobs.keySet()) {
@@ -552,10 +553,11 @@ public class Repo implements Serializable {
         return result;
     }
 
-    /** Helper method that continues helperCompare. Updates RESULT by comparing
+    /** Helper method that continues helperCompare. Returns RESULT by comparing
      * CURR named FILENAME with file named FILENAME in BRANCHBLOBS and SPBLOBS.
      */
-    public void helperCompare1(HashMap<String, String> result, File curr,
+    public HashMap<String, String> helperCompare1(HashMap<String, String>
+                                                          result, File curr,
                                String filename, HashMap<String, Blob>
                                        branchBlobs,
                                HashMap<String, Blob> spBlobs) {
@@ -590,6 +592,7 @@ public class Repo implements Serializable {
                 checkUntracked(filename);
             }
         }
+        return result;
     }
 
     /** Helper method that checks if file named FILENAME is untracked. **/
