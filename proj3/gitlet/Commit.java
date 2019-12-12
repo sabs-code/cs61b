@@ -14,6 +14,9 @@ import java.util.HashSet;
  * @author Sabrina Xia
  */
 public class Commit implements Serializable {
+    /** Creates a new commit in branch BRANCH, with log message being
+     * LOGMESSAGE. Only used when creating the first commit in gitlet.
+     */
     Commit(String branch, String logMessage) {
         _logMessage = logMessage;
         _branch = branch;
@@ -22,14 +25,19 @@ public class Commit implements Serializable {
         _code = initCode();
     }
 
+    /** Creates a new commit in branch named BRANCH, with log message being
+     * LOGMESSAGE, parent commit being PARENT. All files/blobs in STAGE should
+     * be added and tracked, as well as files in parent commit. All files in
+     * REMOVED should not be tracked in this commit.
+     */
     Commit(String branch, String logMessage, Commit parent, Stage stage,
            HashSet removed) {
         _logMessage = logMessage;
         _branch = branch;
         _parent = parent.code();
         ZonedDateTime now = ZonedDateTime.now();
-        _timestamp = now.format(DateTimeFormatter.ofPattern("EEE " +
-                    "MMM d HH:mm:ss yyyy xxxx"));
+        _timestamp = now.format(DateTimeFormatter.ofPattern("EEE "
+                + "MMM d HH:mm:ss yyyy xxxx"));
         HashMap<String, Blob> parentBlobs = parent._blobs;
         for (String s : parentBlobs.keySet()) {
             if (!removed.contains(s)) {
@@ -46,6 +54,11 @@ public class Commit implements Serializable {
         _code = hash();
     }
 
+    /** Create a new merge commit in branch named BRANCH, with logMessage being
+     * LOGMESSAGE, first parent being PARENT and merge parent being
+     * MERGEPARENT. All files in STAGE should be added and commited. All files
+     * in REMMOVED should not be tracked.
+     */
     Commit(String branch, String logMessage, Commit parent, Commit mergeParent,
            Stage stage, HashSet removed) {
         this(branch, logMessage, parent, stage, removed);

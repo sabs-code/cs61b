@@ -13,7 +13,7 @@ public class Stage implements Serializable {
      * Hashmap. **/
     private HashMap<String, Blob> _staged;
 
-
+    /** Creates a new stage. **/
     Stage() {
         _staged = new HashMap<>();
     }
@@ -33,10 +33,13 @@ public class Stage implements Serializable {
         return _staged;
     }
 
+    /** Returns true only if the stage area is empty/cleared. **/
     public boolean isEmpty() {
         return _staged.isEmpty();
     }
 
+    /** Add the file named FILENAME to the staging area. Used only when
+     * this file is not currently in the staging area. **/
     public void add(String filename) {
         File f = new File(filename);
         File copy = new File(".gitlet/stage/" + filename);
@@ -46,6 +49,7 @@ public class Stage implements Serializable {
         _staged.put(filename, b);
     }
 
+    /** Updates the file named S in the staging area. **/
     public void rewrite(String s) {
         File staged = new File(".gitlet/stage/" + s);
         File f = new File(s);
@@ -53,12 +57,14 @@ public class Stage implements Serializable {
         Utils.writeContents(staged, contents);
     }
 
+    /** Removes the file named S in the staging area. **/
     public void remove(String s) {
         _staged.remove(s);
         File toRemove = new File(".gitlet/stage/" + s);
         toRemove.delete();
     }
 
+    /** Clears the staging area. **/
     public void clear() {
         for (String s : _staged.keySet()) {
             File f = new File(".gitlet/stage/" + s);

@@ -2,20 +2,22 @@ package gitlet;
 
 
 import java.io.File;
-import java.lang.Object;
 import java.io.Serializable;
 import java.util.*;
 
-/** All commits in the gitlet directory, represented as a tree.
+/** The repository of this gitlet directory. Includes all information about
+ * commit tree, all branches, current branch, staging area, etc.
  * @author Sabrina Xia
  */
 public class Repo implements Serializable{
+    /** Creates a new repo with only one master branch and no commit. **/
     Repo() {
         _commits = new HashSet<>();
         _branches.put("master", new Branch("master"));
         _staging = new Stage();
     }
 
+    /** Initializes this repo to be ready for gitlet. **/
     public void init() {
         Commit c = new Commit("master", "initial commit");
         addCommit(c);
@@ -23,11 +25,13 @@ public class Repo implements Serializable{
         _initialized = true;
     }
 
+    /** Returns true only if this repo has been initialized. **/
     public boolean initialized() {
         return _initialized;
     }
 
-    /** Add C to commit tree and update pointers. **/
+    /** Add C to commit tree and update current branch's head or
+     * create new branch. **/
     public void addCommit(Commit c) {
         String s = c.code();
         _commits.add(s);
@@ -41,20 +45,22 @@ public class Repo implements Serializable{
         }
     }
 
+    /** Returns the head commit of this repo. **/
     public Commit head() {
         return getCommit(_headBranch.head());
     }
 
-    public boolean hasCommit(String id) {
-        return _commits.contains(id);
-    }
-
+    /** Returns the commit with sha-1 code ID. **/
     public Commit getCommit(String id) {
         File commitFile = new File(".gitlet/commits/" + id);
         Commit commit = Utils.readObject(commitFile, Commit.class);
         return commit;
     }
 
+    /** Called everytime there is a new gitlet command. Update all untracked
+     * files by going through FILENAMES and checking if each one is tracked in
+     * the current branch.
+     */
     public void updateUntracked(HashSet<String> fileNames) {
         _untracked = new HashSet<>();
         HashSet<String> helper1 = new HashSet<>(fileNames);
@@ -76,10 +82,14 @@ public class Repo implements Serializable{
         _untracked.addAll(helper2);
     }
 
+    /** Returns true if the staging area is empty and no file was removed. **/
     public boolean nochange() {
         return _removed.isEmpty() && _staging.isEmpty();
     }
 
+    /** Adds file with filename S to the staging area. Add or update(overwrite)
+     * according to the contents of this file.
+     */
     public void add(String s) {
         Commit curr = head();
         if (curr.getBlobs().containsKey(s)) {
@@ -109,14 +119,20 @@ public class Repo implements Serializable{
         _untracked.remove(s);
     }
 
+    /** Makes a new commit with log message according to OPERANDS. **/
     public void commit(ArrayList<String> operands) {
         String log = operands.remove(0);
-        Commit c = new Commit(_headBranch.name(), log, head(), _staging, _removed);
+        Commit c = new Commit(_headBranch.name(), log, head(), _staging,
+                _removed);
         addCommit(c);
         _removed.clear();
         _staging.clear();
     }
 
+    /** Removes the file named FILENAME from repo. Remove from staging area if
+     * currently staged, mark it to be untracked in next commit by adding
+     * FILENAME to _removed if it is tracked by current commit.
+     */
     public void remove(String filename) {
         Commit headCommit = head();
         if (!headCommit.getBlobs().containsKey(filename)
@@ -132,6 +148,8 @@ public class Repo implements Serializable{
         }
     }
 
+    /** Prints information about each commit starting with current one,
+     * and going backwards following each one's parent. **/
     public void log() {
         for (Commit c = head(); c != null; c = c.parent()) {
             System.out.println("===");
@@ -149,6 +167,7 @@ public class Repo implements Serializable{
         }
     }
 
+    /** Prints information for all commits. Order does not matter. **/
     public void globalLog() {
         for (String commitid : _commits) {
             Commit c = getCommit(commitid);
@@ -160,6 +179,9 @@ public class Repo implements Serializable{
         }
     }
 
+    /** Finds and prints all commit ids that have logmessage same as
+     * LOGMESSAGE.
+     */
     public void find(String logMessage) {
         boolean exist = false;
         for (String commitid : _commits) {
@@ -174,6 +196,9 @@ public class Repo implements Serializable{
         }
     }
 
+    /** Prints the current status of this repo. Prints all existing branches,
+     * all staged files, and all removed files since last commit.
+     */
     public void status() {
         System.out.println("=== Branches ===");
         ArrayList<String> helper = new ArrayList<>(_branches.keySet());
@@ -216,8 +241,18 @@ public class Repo implements Serializable{
         for (String s : helper) {
             System.out.println(s);
         }
-        helper.clear();
         System.out.println();
+        helperStatus(modified, deleted);
+    }
+
+    /** Helper method that prints the current status of this repo.
+     * Prints all files tracked but modified in working directory after
+     * updating MODIFIED and DELETED. Prints all untracked files in current
+     * branch.
+     */
+    public void helperStatus(ArrayList<String> modified,
+                             ArrayList<String> deleted) {
+        ArrayList<String> helper = new ArrayList<>();
         System.out.println("=== Modifications Not Staged For Commit ===");
         HashMap<String, Blob> headBlobs = head().getBlobs();
         for (String file : headBlobs.keySet()) {
@@ -256,6 +291,9 @@ public class Repo implements Serializable{
         }
     }
 
+    /** Updates the file named OPERANDS in working directory according to
+     * contents in the current commit.
+     */
     public void checkoutFile(ArrayList<String> operands) {
         HashMap<String, Blob> headFileToBlobs = head().getBlobs();
         String filename = operands.remove(0);
@@ -268,6 +306,9 @@ public class Repo implements Serializable{
         }
     }
 
+    /** Updates the file named FILENAME in working directory according to
+     * its contents in the commit with sha-1 code COMMITID.
+     */
     public void checkoutFileinCommit(String commitid, String filename) {
         if (commitid.length() < 40) {
             for (String s : _commits) {
@@ -291,6 +332,8 @@ public class Repo implements Serializable{
         }
     }
 
+    /** Updates all files in working directory according to contents in
+     * COMMIT. */
     public void checkoutCommit(Commit commit) {
         HashMap<String, Blob> blobsInCommit = commit.getBlobs();
         for (String filename : blobsInCommit.keySet()) {
@@ -321,6 +364,9 @@ public class Repo implements Serializable{
         _staging.clear();
     }
 
+    /** Updates all files in working directory according to branch BRANCHNAME's
+     * head commit.
+     */
     public void checkoutBranch(String branchName) {
         if (!_branches.containsKey(branchName)) {
             System.out.println("No such branch exists.");
@@ -334,6 +380,9 @@ public class Repo implements Serializable{
         }
     }
 
+    /** Creates a new branch named BRANCHNAME with head commit being the
+     * current commit.
+     */
     public void createBranch(String branchname) {
         if (_branches.containsKey(branchname)) {
             System.out.println("A branch with that name already exists.");
@@ -343,6 +392,9 @@ public class Repo implements Serializable{
         }
     }
 
+    /** Removes the branch named BRANCHNAME but keeps all commits in this
+     * branch.
+     */
     public void removeBranch(String branchname) {
         if (!_branches.containsKey(branchname)) {
             System.out.println("A branch with that name does not exist.");
@@ -353,6 +405,9 @@ public class Repo implements Serializable{
         }
     }
 
+    /** Reset (updates) all files in working directory according to commit
+     * with sha-1 code COMMITID.
+     */
     public void reset(String commitid) {
         if (!_commits.contains(commitid)) {
             System.out.println("No commit with that id exists.");
@@ -371,6 +426,7 @@ public class Repo implements Serializable{
         }
     }
 
+    /** Merges current branch with branch named BRANCHNAME. **/
     public void merge(String branchname) {
         if (!nochange()) {
             System.out.println("You have uncommitted changes.");
@@ -433,6 +489,9 @@ public class Repo implements Serializable{
         }
     }
 
+    /** Helper method that compares all tracked files in splitpoint commit SP,
+     * current commit, and given commit BRANCH.
+     */
     public HashMap<String, String> helperCompare(Commit sp, Commit branch) {
         HashMap<String, String> result = new HashMap<>();
         HashMap<String, Blob> spBlobs = sp.getBlobs();
@@ -442,58 +501,19 @@ public class Repo implements Serializable{
             if (!branchBlobs.containsKey(filename)) {
                 if (curr.exists()) {
                     byte[] currContents = Utils.readContents(curr);
-                    byte[] spContents = (byte[]) spBlobs.get(filename).getContents();
+                    byte[] spContents = (byte[]) spBlobs.get(filename)
+                            .getContents();
                     if (Arrays.equals(currContents, spContents)) {
                         result.put(filename, "rm");
                     } else {
                         result.put(filename, "conflict");
                     }
-                    if (_untracked.contains(filename)) {
-                        System.out.println("There is an untracked file in the way; delete it or add it first.");
-                        System.exit(0);
-                    }
+                    checkUntracked(filename);
                 } else {
                     result.put(filename, "same");
                 }
             } else {
-                if (!curr.exists()) {
-                    byte[] branchContents = (byte[]) branchBlobs.get(filename).getContents();
-                    byte[] spContents = (byte[]) spBlobs.get(filename).getContents();
-                    if (Arrays.equals(branchContents, spContents)) {
-                        result.put(filename, "same");
-                    } else {
-                        result.put(filename, "conflict");
-                        if (_untracked.contains(filename)) {
-                            System.out.println("There is an untracked file in the way; delete it or add it first.");
-                            System.exit(0);
-                        }
-                    }
-                } else {
-                    byte[] currContents = Utils.readContents(curr);
-                    byte[] branchContents = (byte[]) branchBlobs.get(filename).getContents();
-                    byte[] spContents = (byte[]) spBlobs.get(filename).getContents();
-                    if (!Arrays.equals(branchContents, spContents)
-                            && Arrays.equals(spContents, currContents)) {
-                        result.put(filename, "checkout and stage");
-                        if (_untracked.contains(filename)) {
-                            System.out.println("There is an untracked file in the way; delete it or add it first.");
-                            System.exit(0);
-                        }
-                    } else if (Arrays.equals(branchContents, spContents)
-                            && !Arrays.equals(currContents, spContents)) {
-                        result.put(filename, "same");
-                    } else if (Arrays.equals(currContents, branchContents)) {
-                        result.put(filename, "same");
-                    } else if (!Arrays.equals(currContents, spContents)
-                            && !Arrays.equals(branchContents, spContents)
-                            && !Arrays.equals(currContents, branchContents)) {
-                        result.put(filename, "conflict");
-                        if (_untracked.contains(filename)) {
-                            System.out.println("There is an untracked file in the way; delete it or add it first.");
-                            System.exit(0);
-                        }
-                    }
-                }
+                helperCompare1(result, curr, filename, branchBlobs, spBlobs);
             }
         }
         for (String filename : branchBlobs.keySet()) {
@@ -501,24 +521,62 @@ public class Repo implements Serializable{
                 File curr = new File(filename);
                 if (!curr.exists()) {
                     result.put(filename, "checkout and stage");
-                    if (_untracked.contains(filename)) {
-                        System.out.println("There is an untracked file in the way; delete it or add it first.");
-                        System.exit(0);
-                    }
+                    checkUntracked(filename);
                 } else {
                     byte[] currContents = Utils.readContents(curr);
-                    byte[] branchContents = (byte[]) branchBlobs.get(filename).getContents();
+                    byte[] branchContents = (byte[]) branchBlobs.get(filename)
+                            .getContents();
                     if (!Arrays.equals(currContents, branchContents)) {
                         result.put(filename, "conflict");
-                        if (_untracked.contains(filename)) {
-                            System.out.println("There is an untracked file in the way; delete it or add it first.");
-                            System.exit(0);
-                        }
+                        checkUntracked(filename);
                     }
                 }
             }
         }
         return result;
+    }
+
+    public void helperCompare1(HashMap<String, String> result, File curr,
+                               String filename, HashMap<String, Blob> branchBlobs,
+                               HashMap<String, Blob> spBlobs) {
+        if (!curr.exists()) {
+            byte[] branchContents = (byte[]) branchBlobs.get(filename).getContents();
+            byte[] spContents = (byte[]) spBlobs.get(filename).getContents();
+            if (Arrays.equals(branchContents, spContents)) {
+                result.put(filename, "same");
+            } else {
+                result.put(filename, "conflict");
+                checkUntracked(filename);
+            }
+        } else {
+            byte[] currContents = Utils.readContents(curr);
+            byte[] branchContents = (byte[]) branchBlobs.get(filename).getContents();
+            byte[] spContents = (byte[]) spBlobs.get(filename).getContents();
+            if (!Arrays.equals(branchContents, spContents)
+                    && Arrays.equals(spContents, currContents)) {
+                result.put(filename, "checkout and stage");
+                checkUntracked(filename);
+            } else if (Arrays.equals(branchContents, spContents)
+                    && !Arrays.equals(currContents, spContents)) {
+                result.put(filename, "same");
+            } else if (Arrays.equals(currContents, branchContents)) {
+                result.put(filename, "same");
+            } else if (!Arrays.equals(currContents, spContents)
+                    && !Arrays.equals(branchContents, spContents)
+                    && !Arrays.equals(currContents, branchContents)) {
+                result.put(filename, "conflict");
+                checkUntracked(filename);
+            }
+        }
+    }
+
+    /** Helper method that checks if file named FILENAME is untracked. **/
+    public void checkUntracked(String filename) {
+        if (_untracked.contains(filename)) {
+            System.out.println("There is an untracked file in "
+                    + "the way; delete it or add it first.");
+            System.exit(0);
+        }
     }
 
     public String findSplitPoint(String first, String second) {

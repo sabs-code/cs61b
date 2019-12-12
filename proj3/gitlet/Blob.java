@@ -7,11 +7,12 @@ import java.util.ArrayList;
  * @author Sabrina Xia
  */
 public class Blob implements Serializable {
-
-    /** Unserializes the file. **/
-    Blob(String file) {
-        _name = file;
-        File f = new File(file);
+    /** Serializes the contents of the File of name FILENAME. Stores the
+     * name, and the sha-1 code.
+     */
+    Blob(String filename) {
+        _name = filename;
+        File f = new File(filename);
         _contents = Utils.readContents(f);
         _contentsAsString = Utils.readContentsAsString(f);
         _code = hash();
