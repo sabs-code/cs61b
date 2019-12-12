@@ -1,0 +1,25 @@
+#Tests add, commit, status.
+I prelude1.inc
++ f.txt wug.txt
+> add f.txt
+<<<
+> commit "added f"
+<<<
++ f.txt notwug.txt
++ g.txt wug.txt
+> add g.txt
+<<<
+> status
+=== Branches ===
+*master
+
+=== Staged Files ===
+g.txt
+
+=== Removed Files ===
+
+=== Modifications Not Staged For Commit ===
+f.txt (modified)
+
+=== Untracked Files ===
+<<<
