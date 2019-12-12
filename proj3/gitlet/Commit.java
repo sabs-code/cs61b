@@ -57,7 +57,7 @@ public class Commit implements Serializable {
     /** Create a new merge commit in branch named BRANCH, with logMessage being
      * LOGMESSAGE, first parent being PARENT and merge parent being
      * MERGEPARENT. All files in STAGE should be added and commited. All files
-     * in REMMOVED should not be tracked.
+     * in REMOVED should not be tracked.
      */
     Commit(String branch, String logMessage, Commit parent, Commit mergeParent,
            Stage stage, HashSet removed) {
@@ -65,7 +65,7 @@ public class Commit implements Serializable {
         _mergeParent = mergeParent.code();
     }
 
-    /** The unique hashcode of the first commit in gitlet. **/
+    /** Returns the unique hashcode of the first commit in gitlet. **/
     public String initCode() {
         ArrayList<Object> toHash = new ArrayList<>();
         toHash.add(_logMessage);

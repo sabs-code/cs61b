@@ -11,10 +11,13 @@ import java.util.HashSet;
 /** Gitlet commands.
  * @author Sabrina Xia
  */
-public class Commands implements Serializable{
-
+public class Commands implements Serializable {
+    /** Repo that each command manipulates. */
     private Repo _repo;
 
+    /** Creates a new Commands instance if there isn't one. Otherwise,
+     * creates a Commands that has the same repo as before.
+     */
     Commands() {
         File command = new File(".gitlet/command");
         if (command.exists()) {
@@ -26,7 +29,7 @@ public class Commands implements Serializable{
     }
 
 
-    /** Processes the command according to operands. **/
+    /** Processes the command according to OPERANDS. **/
     public void process(ArrayList<String> operands) throws IOException {
         if (operands.size() == 0) {
             System.out.println("Please enter a command.");
@@ -73,8 +76,8 @@ public class Commands implements Serializable{
     /** Initializes a gitlet directory. Errors if there already exists one. **/
     public void init() throws IOException {
         if (Files.exists(Paths.get(".gitlet"))) {
-            System.out.println("A Gitlet version-control system already " +
-                    "exists in the current directory.");
+            System.out.println("A Gitlet version-control system already "
+                    + "exists in the current directory.");
         } else {
             Files.createDirectory(Paths.get(".gitlet"));
             Files.createDirectory(Paths.get(".gitlet/commits"));
@@ -91,7 +94,7 @@ public class Commands implements Serializable{
         _repo.updateUntracked(allFiles);
     }
 
-    /** Helper method that returns an Hashset of all files in Dir. **/
+    /** Helper method that returns an Hashset of all files in DIR. **/
     public HashSet<String> allFiles(File dir) {
         HashSet<String> files = new HashSet<>();
         File[] allFiles = dir.listFiles();
@@ -107,7 +110,7 @@ public class Commands implements Serializable{
         return files;
     }
 
-    /** Add a file to the staging area according to operands. */
+    /** Add a file to the staging area according to OPERANDS. */
     public void add(ArrayList<String> operands) {
         String s = operands.remove(0);
         File f = new File(s);
@@ -118,7 +121,7 @@ public class Commands implements Serializable{
         }
     }
 
-     /** Create a new Commit according to operands. **/
+     /** Create a new Commit according to OPERANDS. **/
     public void commit(ArrayList<String> operands) {
         if (_repo.nochange()) {
             System.out.println("No changes added to the commit.");
@@ -129,7 +132,7 @@ public class Commands implements Serializable{
         }
     }
 
-    /** Untrack the file in operands. **/
+    /** Untrack the file in OPERANDS. **/
     public void remove(ArrayList<String> operands) {
         String file = operands.remove(0);
         _repo.remove(file);
@@ -140,14 +143,20 @@ public class Commands implements Serializable{
         _repo.log();
     }
 
+    /** Prints all commits in repo. **/
     public void globalLog() {
         _repo.globalLog();
     }
 
+    /** Find all commits that have log message same as OPERANDS
+     * in repo.
+     */
     public void find(ArrayList<String> operands) {
         _repo.find(operands.get(0));
     }
 
+    /** Checks out file, or file in commit, or branch according to
+     * OPERANDS. **/
     public void checkout(ArrayList<String> operands) {
         String s = operands.remove(0);
         if (s.equals("--")) {
@@ -163,21 +172,27 @@ public class Commands implements Serializable{
         }
     }
 
+    /** Creates a new branch in repo with name according to OPERANDS. **/
     public void branch(ArrayList<String> operands) {
         String branchname = operands.remove(0);
         _repo.createBranch(branchname);
     }
 
+    /** Removes the branch named in OPERANDS in repo. **/
     public void rmBranch(ArrayList<String> operands) {
         String branchname = operands.remove(0);
         _repo.removeBranch(branchname);
     }
 
+    /** Reset the repo/working directory according to OPERANDS. **/
     public void reset(ArrayList<String> operands) {
         String commitid = operands.remove(0);
         _repo.reset(commitid);
     }
 
+    /** Merges the repo's current branch with the branch given
+     * in OPERANDS.
+     */
     public void merge(ArrayList<String> operands) {
         String branchname = operands.remove(0);
         _repo.merge(branchname);

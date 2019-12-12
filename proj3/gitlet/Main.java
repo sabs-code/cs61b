@@ -10,7 +10,8 @@ import java.util.Arrays;
  *  @author Sabrina Xia
  */
 public class Main {
-    static Commands _commands;
+    /** The commands this gitlet uses. **/
+    private static Commands _commands;
 
     /** Usage: java gitlet.Main ARGS, where ARGS contains
      *  <COMMAND> <OPERAND> .... */
@@ -22,9 +23,8 @@ public class Main {
             _commands.process(operands);
             File command = new File(".gitlet/command");
             Utils.writeObject(command, _commands);
-        } catch (IllegalArgumentException | IOException e ) {
+        } catch (IllegalArgumentException | IOException e) {
             System.out.println(e.getMessage());
         }
     }
-
 }

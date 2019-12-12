@@ -1,15 +1,18 @@
 package gitlet;
 
-
 import java.io.File;
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 /** The repository of this gitlet directory. Includes all information about
  * commit tree, all branches, current branch, staging area, etc.
  * @author Sabrina Xia
  */
-public class Repo implements Serializable{
+public class Repo implements Serializable {
     /** Creates a new repo with only one master branch and no commit. **/
     Repo() {
         _commits = new HashSet<>();
@@ -277,7 +280,7 @@ public class Repo implements Serializable{
         for (String file : helper) {
             if (modified.contains(file)) {
                 System.out.println(file + " (modified)");
-            } else if (!_removed.contains(file)){
+            } else if (!_removed.contains(file)) {
                 System.out.println(file + " (deleted)");
             }
         }
@@ -310,7 +313,7 @@ public class Repo implements Serializable{
      * its contents in the commit with sha-1 code COMMITID.
      */
     public void checkoutFileinCommit(String commitid, String filename) {
-        if (commitid.length() < 40) {
+        if (commitid.length() < Utils.UID_LENGTH) {
             for (String s : _commits) {
                 if (s.substring(0, commitid.length()).equals(commitid)) {
                     commitid = s;
@@ -412,7 +415,7 @@ public class Repo implements Serializable{
         if (!_commits.contains(commitid)) {
             System.out.println("No commit with that id exists.");
         } else {
-            if (commitid.length() < 40) {
+            if (commitid.length() < Utils.UID_LENGTH) {
                 for (String s : _commits) {
                     if (s.substring(0, commitid.length()).equals(commitid)) {
                         commitid = s;
@@ -426,72 +429,84 @@ public class Repo implements Serializable{
         }
     }
 
-    
-    /** Merges current branch with branch named BRANCHNAME. **/
-    public void merge(String branchname) {
+    /** Helper method for merge that checks if merging with BRANCHNAME
+     * is invalid.
+     */
+    public void helperMerge(String branchname) {
         if (!nochange()) {
             System.out.println("You have uncommitted changes.");
+            System.exit(0);
         } else if (!_branches.containsKey(branchname)) {
             System.out.println("A branch with that name does not exist.");
+            System.exit(0);
         } else if (_headBranch.name().equals(branchname)) {
             System.out.println("Cannot merge a branch with itself.");
+            System.exit(0);
+        }
+    }
+
+    /** Merges current branch with branch named BRANCHNAME. **/
+    public void merge(String branchname) {
+        helperMerge(branchname);
+        boolean conflict = false;
+        Branch target = _branches.get(branchname);
+        String splitPoint = findSplitPoint(_headBranch.head(), target.head());
+        if (splitPoint.equals(target.head())) {
+            System.out.println("Given branch is an ancestor of the "
+                    + "current branch.");
+            System.exit(0);
+        } else if (splitPoint.equals(_headBranch.head())) {
+            _headBranch.updatehead(target.head());
+            checkoutCommit(head());
+            System.out.println("Current branch fast-forwarded.");
+            System.exit(0);
         } else {
-            boolean conflict = false;
-            Branch target = _branches.get(branchname);
-            String splitPoint = findSplitPoint(_headBranch.head(), target.head());
-            if (splitPoint.equals(target.head())) {
-                System.out.println("Given branch is an ancestor of the current branch.");
-                System.exit(0);
-            } else if (splitPoint.equals(_headBranch.head())) {
-                _headBranch.updatehead(target.head());
-                checkoutCommit(head());
-                System.out.println("Current branch fast-forwarded.");
-                System.exit(0);
-            } else {
-                Commit spCommit = getCommit(splitPoint);
-                Commit branch = getCommit(target.head());
-                HashMap<String, String> compare = helperCompare(spCommit, branch);
-                for (String filename : compare.keySet()) {
-                    if (compare.get(filename).equals("rm")) {
-                        remove(filename);
-                    } else if (compare.get(filename).equals("checkout and stage")) {
-                        File curr = new File(filename);
-                        byte[] overwrite = (byte[]) branch.getBlobs().get(filename).getContents();
-                        Utils.writeContents(curr, (Object) overwrite);
-                        add(filename);
-                    } else if (compare.get(filename).equals("conflict")) {
-                        conflict = true;
-                        String newContent = "<<<<<<< HEAD\n";
-                        File curr = new File(filename);
-                        if (curr.exists()) {
-                            newContent += Utils.readContentsAsString(curr);
-                        }
-                        newContent += "=======\n";
-                        if (branch.getBlobs().containsKey(filename)) {
-                            newContent += branch.getBlobs().get(filename).getContentAsString();
-                        }
-                        newContent += ">>>>>>>\n";
-                        Utils.writeContents(curr, newContent);
-                        add(filename);
+            Commit spCommit = getCommit(splitPoint);
+            Commit branch = getCommit(target.head());
+            HashMap<String, String> compare = helperCompare(spCommit, branch);
+            for (String filename : compare.keySet()) {
+                if (compare.get(filename).equals("rm")) {
+                    remove(filename);
+                } else if (compare.get(filename).equals("checkout stage")) {
+                    File curr = new File(filename);
+                    byte[] overwrite = (byte[]) branch.getBlobs().
+                            get(filename).getContents();
+                    Utils.writeContents(curr, (Object) overwrite);
+                    add(filename);
+                } else if (compare.get(filename).equals("conflict")) {
+                    conflict = true;
+                    String newContent = "<<<<<<< HEAD\n";
+                    File curr = new File(filename);
+                    if (curr.exists()) {
+                        newContent += Utils.readContentsAsString(curr);
                     }
+                    newContent += "=======\n";
+                    if (branch.getBlobs().containsKey(filename)) {
+                        newContent += branch.getBlobs().get(filename).
+                                getContentAsString();
+                    }
+                    newContent += ">>>>>>>\n";
+                    Utils.writeContents(curr, newContent);
+                    add(filename);
                 }
             }
-            String log = "Merged " + branchname + " into "
-                    + _headBranch.name() + ".";
-            Commit mergeParent = getCommit(target.head());
-            Commit c = new Commit(_headBranch.name(), log, head(), mergeParent,
-                    _staging, _removed);
-            addCommit(c);
-            _removed.clear();
-            _staging.clear();
-            if (conflict) {
-                System.out.println("Encountered a merge conflict.");
-            }
+        }
+        String log = "Merged " + branchname + " into "
+                + _headBranch.name() + ".";
+        Commit mergeParent = getCommit(target.head());
+        Commit c = new Commit(_headBranch.name(), log, head(), mergeParent,
+                _staging, _removed);
+        addCommit(c);
+        _removed.clear();
+        _staging.clear();
+        if (conflict) {
+            System.out.println("Encountered a merge conflict.");
         }
     }
 
     /** Helper method that compares all tracked files in splitpoint commit SP,
      * current commit, and given commit BRANCH.
+     * @return comparision result of each file in hashmap
      */
     public HashMap<String, String> helperCompare(Commit sp, Commit branch) {
         HashMap<String, String> result = new HashMap<>();
@@ -521,7 +536,7 @@ public class Repo implements Serializable{
             if (!spBlobs.containsKey(filename)) {
                 File curr = new File(filename);
                 if (!curr.exists()) {
-                    result.put(filename, "checkout and stage");
+                    result.put(filename, "checkout stage");
                     checkUntracked(filename);
                 } else {
                     byte[] currContents = Utils.readContents(curr);
@@ -537,11 +552,16 @@ public class Repo implements Serializable{
         return result;
     }
 
+    /** Helper method that continues helperCompare. Updates RESULT by comparing
+     * CURR named FILENAME with file named FILENAME in BRANCHBLOBS and SPBLOBS.
+     */
     public void helperCompare1(HashMap<String, String> result, File curr,
-                               String filename, HashMap<String, Blob> branchBlobs,
+                               String filename, HashMap<String, Blob>
+                                       branchBlobs,
                                HashMap<String, Blob> spBlobs) {
         if (!curr.exists()) {
-            byte[] branchContents = (byte[]) branchBlobs.get(filename).getContents();
+            byte[] branchContents = (byte[]) branchBlobs.get(filename).
+                    getContents();
             byte[] spContents = (byte[]) spBlobs.get(filename).getContents();
             if (Arrays.equals(branchContents, spContents)) {
                 result.put(filename, "same");
@@ -551,11 +571,12 @@ public class Repo implements Serializable{
             }
         } else {
             byte[] currContents = Utils.readContents(curr);
-            byte[] branchContents = (byte[]) branchBlobs.get(filename).getContents();
+            byte[] branchContents = (byte[]) branchBlobs.get(filename).
+                    getContents();
             byte[] spContents = (byte[]) spBlobs.get(filename).getContents();
             if (!Arrays.equals(branchContents, spContents)
                     && Arrays.equals(spContents, currContents)) {
-                result.put(filename, "checkout and stage");
+                result.put(filename, "checkout stage");
                 checkUntracked(filename);
             } else if (Arrays.equals(branchContents, spContents)
                     && !Arrays.equals(currContents, spContents)) {
@@ -580,6 +601,7 @@ public class Repo implements Serializable{
         }
     }
 
+    /** Finds and returns the splitpoint commit of FIRST and SECOND. **/
     public String findSplitPoint(String first, String second) {
         HashMap<String, Integer> helper = new HashMap<>();
         int i = 0;
@@ -589,7 +611,7 @@ public class Repo implements Serializable{
                 helper.put(c.getMergeParent(), -1);
             }
         }
-        HashMap<String, Integer> ancestors= new HashMap<>();
+        HashMap<String, Integer> ancestors = new HashMap<>();
         int j = 0;
         for (Commit c = getCommit(second); c != null; c = c.parent(), j++) {
             if (helper.containsKey(c.getMergeParent())) {
@@ -617,6 +639,7 @@ public class Repo implements Serializable{
     /** All commits in this gitlet directory. **/
     private HashSet<String> _commits;
 
+    /** The current branch of this repo. **/
     private Branch _headBranch;
 
     /** Pointers to all existing branches. **/
@@ -625,11 +648,16 @@ public class Repo implements Serializable{
     /** The current staging area. **/
     private Stage _staging;
 
-    /** File names of untracked files. **/
+    /** File names of untracked files, updated each time there is a
+     * gitlet command. **/
     private HashSet<String> _untracked;
 
+    /** Removed files since last commit. Will be cleared after each new
+     * commit.
+     */
     private HashSet<String> _removed = new HashSet<>();
 
+    /** Whether if this repo is initialized. **/
     private boolean _initialized = false;
 
 }
