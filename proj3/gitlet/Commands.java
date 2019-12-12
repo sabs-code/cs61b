@@ -28,33 +28,45 @@ public class Commands implements Serializable{
 
     /** Processes the command according to operands. **/
     public void process(ArrayList<String> operands) throws IOException {
+        if (operands.size() == 0) {
+            System.out.println("Please enter a command.");
+            System.exit(0);
+        }
         String s = operands.remove(0);
         if (s.equals("init")) {
             init();
-        } else if (s.equals("add")) {
-            add(operands);
-        } else if (s.equals("commit")) {
-            commit(operands);
-        } else if (s.equals("checkout")) {
-            checkout(operands);
-        } else if (s.equals("rm")) {
-            remove(operands);
-        } else if (s.equals("log")) {
-            log();
-        } else if (s.equals("global-log")) {
-            globalLog();
-        } else if (s.equals("find")) {
-            find(operands);
-        } else if (s.equals("status")) {
-            _repo.status();
-        } else if (s.equals("branch")) {
-            branch(operands);
-        } else if (s.equals("rm-branch")) {
-            rmBranch(operands);
-        } else if (s.equals("reset")) {
-            reset(operands);
-        } else if (s.equals("merge")) {
-            merge(operands);
+        } else {
+            if (!_repo.initialized()) {
+                System.out.println("Not in an initialized Gitlet directory.");
+                System.exit(0);
+            }
+            if (s.equals("add")) {
+                add(operands);
+            } else if (s.equals("commit")) {
+                commit(operands);
+            } else if (s.equals("checkout")) {
+                checkout(operands);
+            } else if (s.equals("rm")) {
+                remove(operands);
+            } else if (s.equals("log")) {
+                log();
+            } else if (s.equals("global-log")) {
+                globalLog();
+            } else if (s.equals("find")) {
+                find(operands);
+            } else if (s.equals("status")) {
+                _repo.status();
+            } else if (s.equals("branch")) {
+                branch(operands);
+            } else if (s.equals("rm-branch")) {
+                rmBranch(operands);
+            } else if (s.equals("reset")) {
+                reset(operands);
+            } else if (s.equals("merge")) {
+                merge(operands);
+            } else {
+                System.out.println("No command with that name exists.");
+            }
         }
     }
 

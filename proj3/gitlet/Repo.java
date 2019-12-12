@@ -20,6 +20,11 @@ public class Repo implements Serializable{
         Commit c = new Commit("master", "initial commit");
         addCommit(c);
         _headBranch = _branches.get("master");
+        _initialized = true;
+    }
+
+    public boolean initialized() {
+        return _initialized;
     }
 
     /** Add C to commit tree and update pointers. **/
@@ -131,6 +136,13 @@ public class Repo implements Serializable{
         for (Commit c = head(); c != null; c = c.parent()) {
             System.out.println("===");
             System.out.println("commit " + c.code());
+            if (c.getMergeParent() != null) {
+                String s = "Merge: ";
+                s += c.parent().code().substring(0, 7);
+                s += " ";
+                s += c.getMergeParent().substring(0, 7);
+                System.out.println(s);
+            }
             System.out.println("Date: " + c.getTimestamp());
             System.out.println(c.getLogMessage());
             System.out.println();
@@ -138,20 +150,13 @@ public class Repo implements Serializable{
     }
 
     public void globalLog() {
-        HashSet<String> printed = new HashSet<>();
-        for (String branch : _branches.keySet()) {
-            Branch b = _branches.get(branch);
-            String commitid = b.head();
-            for (Commit c = getCommit(commitid); c != null; c = c.parent()) {
-                if (!printed.contains(c.code())) {
-                    System.out.println("===");
-                    System.out.println("commit " + c.code());
-                    System.out.println("Date: " + c.getTimestamp());
-                    System.out.println(c.getLogMessage());
-                    System.out.println();
-                    printed.add(c.code());
-                }
-            }
+        for (String commitid : _commits) {
+            Commit c = getCommit(commitid);
+            System.out.println("===");
+            System.out.println("commit " + c.code());
+            System.out.println("Date: " + c.getTimestamp());
+            System.out.println(c.getLogMessage());
+            System.out.println();
         }
     }
 
@@ -362,6 +367,7 @@ public class Repo implements Serializable{
             }
             Commit commit = getCommit(commitid);
             checkoutCommit(commit);
+            _headBranch.updatehead(commitid);
         }
     }
 
@@ -370,7 +376,7 @@ public class Repo implements Serializable{
             System.out.println("You have uncommitted changes.");
         } else if (!_branches.containsKey(branchname)) {
             System.out.println("A branch with that name does not exist.");
-        } else if (head().branch().equals(branchname)) {
+        } else if (_headBranch.name().equals(branchname)) {
             System.out.println("Cannot merge a branch with itself.");
         } else {
             boolean conflict = false;
@@ -378,9 +384,12 @@ public class Repo implements Serializable{
             String splitPoint = findSplitPoint(_headBranch.head(), target.head());
             if (splitPoint.equals(target.head())) {
                 System.out.println("Given branch is an ancestor of the current branch.");
+                System.exit(0);
             } else if (splitPoint.equals(_headBranch.head())) {
                 _headBranch.updatehead(target.head());
+                checkoutCommit(head());
                 System.out.println("Current branch fast-forwarded.");
+                System.exit(0);
             } else {
                 Commit spCommit = getCommit(splitPoint);
                 Commit branch = getCommit(target.head());
@@ -395,17 +404,18 @@ public class Repo implements Serializable{
                         add(filename);
                     } else if (compare.get(filename).equals("conflict")) {
                         conflict = true;
-                        String newContent = "<<<<<<< HEAD" + "\n";
+                        String newContent = "<<<<<<< HEAD\n";
                         File curr = new File(filename);
                         if (curr.exists()) {
                             newContent += Utils.readContentsAsString(curr);
                         }
-                        newContent += "=======" + "\n";
+                        newContent += "=======\n";
                         if (branch.getBlobs().containsKey(filename)) {
                             newContent += branch.getBlobs().get(filename).getContentAsString();
                         }
-                        newContent += ">>>>>>>";
+                        newContent += ">>>>>>>\n";
                         Utils.writeContents(curr, newContent);
+                        add(filename);
                     }
                 }
             }
@@ -479,6 +489,7 @@ public class Repo implements Serializable{
                             && !Arrays.equals(currContents, branchContents)) {
                         result.put(filename, "conflict");
                         if (_untracked.contains(filename)) {
+                            System.out.println("There is an untracked file in the way; delete it or add it first.");
                             System.exit(0);
                         }
                     }
@@ -490,11 +501,19 @@ public class Repo implements Serializable{
                 File curr = new File(filename);
                 if (!curr.exists()) {
                     result.put(filename, "checkout and stage");
+                    if (_untracked.contains(filename)) {
+                        System.out.println("There is an untracked file in the way; delete it or add it first.");
+                        System.exit(0);
+                    }
                 } else {
                     byte[] currContents = Utils.readContents(curr);
                     byte[] branchContents = (byte[]) branchBlobs.get(filename).getContents();
                     if (!Arrays.equals(currContents, branchContents)) {
                         result.put(filename, "conflict");
+                        if (_untracked.contains(filename)) {
+                            System.out.println("There is an untracked file in the way; delete it or add it first.");
+                            System.exit(0);
+                        }
                     }
                 }
             }
@@ -552,6 +571,6 @@ public class Repo implements Serializable{
 
     private HashSet<String> _removed = new HashSet<>();
 
-
+    private boolean _initialized = false;
 
 }

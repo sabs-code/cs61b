@@ -4,7 +4,36 @@ Gitlet Design Document
 
 Classes and Data Structures
 ---------------------------
+*** Blob ***
+This class stores file contents by serialization.
 
+** Fields **
+1. File file : serialized file.
+
+*** Commit ***
+This class stores information about one commit, including timestamp, files, log message, parent.
+
+** Fields **
+1. Date timestamp: the time when this commit was created.
+2. HashMap<Integer, File> files : all files in this commit.
+3. String message : log message.
+4. Commit parent : the parent of this commit.
+5. String branch : name of the branch this commit is in.
+
+*** CommitTree ***
+This class stores all commits in this .gitlet directory.
+
+** Fields **
+1. HashMap<Integer, Commit> commits : all commits in this .gitlet directory.
+2. Stage staging : the current staging area.
+3. Commit head : the head of .gitlet directory.
+4. Commit [branch-name]: pointer to the branch.
+
+*** Stage ***
+This class represents the staging area of the .gitlet directory.
+
+** Field **
+1. ArrayList<File> staged : all staged files.
 
 Algorithms
 ----------
